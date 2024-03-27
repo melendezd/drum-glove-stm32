@@ -1,4 +1,5 @@
 #include "io.hpp"
+#include "status_indicator.hpp"
 #include "timer.hpp"
 #include "util.hpp"
 
@@ -44,14 +45,13 @@ int main( void )
 
     DelayTimer timer_delay(timer_delay_id, pin_led);
 
+    StatusIndicator indicator(pin_led, timer_delay);
+
     DefaultInterruptHandler default_handler(pin_led);
     InterruptHandlers interrupt_handlers { .default_handler = default_handler };
     g_interrupt_handlers = &interrupt_handlers;
 
-    while ( 1 ) { 
-        pin_test.toggle();
-        timer_delay.ms(100);
-    }
+    indicator.status(5);
 
     return 0;
 }
