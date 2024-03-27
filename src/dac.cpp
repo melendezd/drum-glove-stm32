@@ -1,8 +1,7 @@
+/*
 #include "dac.hpp"
 
-#define STM32G431xx
-#include "stm32g431xx.h"
-#include "stm32g4xx.h"
+#include "mcu.hpp"
 
 DacController::DacController( dac::Settings settings ) : settings(settings), dac( DAC )
 {
@@ -21,3 +20,4 @@ constexpr uint32_t DacController::apply_channel(uint32_t mask)
     if (settings.channel != 0 && settings.channel != 1) return 0;
     return mask << (settings.channel - 1) * 16;
 }
+*/
