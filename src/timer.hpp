@@ -14,11 +14,16 @@ enum class Id
 } // namespace timer
 
 
+// Timer used for microsecond and millisecond delays
 class DelayTimer
 {
   public:
       DelayTimer(timer::Id id, GPIO &error_indicator);
+
+      // Spin for the specified number of microseconds
       void us( uint16_t us );
+
+      // Spin for the specified number of milliseconds
       void ms( uint16_t ms );
 
   private:

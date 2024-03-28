@@ -7,7 +7,7 @@
 // Useful for indicating errors.
 //
 // Dependencies:
-// - GPIO out: Pin to which the status will be output. Recommended to use an LED
+// - GPIO out: Pin to which the status will be output. Recommended to use an LED.
 // - DelayTimer delay: Delay timer which will be used for timing in the output pattern.
 class StatusIndicator
 {
