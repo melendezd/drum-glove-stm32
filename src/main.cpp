@@ -5,6 +5,7 @@
 
 #include "dac.hpp"
 #include "interrupts.hpp"
+#include "global_constants.hpp"
 
 // ---- GPIO ----
 const auto pin_led_port = gpio::Port::B;
@@ -58,7 +59,7 @@ int main( void )
     while ( 1 ) {
         timer_delay.us( 500 );
         while ( !dac.write_if_ready( val ) ) {
-            indicator.status_once( val );
+            indicator.status_once( status::dac_not_ready );
         }
         val += delta;
         if (val == 0 || val == 255) delta *= -1;
