@@ -3,6 +3,7 @@
 #include "timer.hpp"
 #include "util.hpp"
 
+#include "dac.hpp"
 #include "interrupts.hpp"
 
 // ---- GPIO ----
@@ -32,6 +33,9 @@ int main( void )
           .pull       = gpio::Pull::None }
     );
     pin_led.unset();
+    DefaultInterruptHandler default_handler( pin_led );
+    InterruptHandlers       interrupt_handlers{ .default_handler = default_handler };
+    g_interrupt_handlers = &interrupt_handlers;
 
     // used to test the timer
     GPIO pin_test(
@@ -43,25 +47,32 @@ int main( void )
           .pull       = gpio::Pull::None }
     );
 
-    DelayTimer timer_delay(timer_delay_id, pin_led);
+    DelayTimer timer_delay( timer_delay_id, pin_led );
 
-    StatusIndicator indicator(pin_led, timer_delay);
+    StatusIndicator indicator( pin_led, timer_delay );
 
-    DefaultInterruptHandler default_handler(pin_led);
-    InterruptHandlers interrupt_handlers { .default_handler = default_handler };
-    g_interrupt_handlers = &interrupt_handlers;
+    DacController dac( { .channel = dac::Channel::One, .indicator = indicator } );
 
-    indicator.status(5);
+    uint8_t val = 0;
+    int delta = 1;
+    while ( 1 ) {
+        timer_delay.us( 500 );
+        while ( !dac.write_if_ready( val ) ) {
+            indicator.status_once( val );
+        }
+        val += delta;
+        if (val == 0 || val == 255) delta *= -1;
+    }
 
     return 0;
 }
 
-DefaultInterruptHandler::DefaultInterruptHandler(GPIO &pin) : pin(pin) {}
+DefaultInterruptHandler::DefaultInterruptHandler( GPIO &pin ) : pin( pin ) { }
 
 void DefaultInterruptHandler::isr()
 {
-    while(1) {
+    while ( 1 ) {
         pin.toggle();
-        spin(50'000);
+        spin( 50'000 );
     }
 }

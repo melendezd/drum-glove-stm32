@@ -18,7 +18,7 @@ class StatusIndicator
     //
     // Toggles the output pin in a pattern to indicate the status code forever.
     // The pattern is: One long blink, and then `status_code` short blinks
-    void status( uint32_t status_code );
+    void status_forever( uint32_t status_code );
 
     // Toggles the output pin in a pattern to indicate the status code once.
     // The pattern is: One long blink, and then `status_code` short blinks
