@@ -26,12 +26,14 @@ int main( void )
     // this GPIO corresponds to the green user LED LD2 on the STM32G4 Nucleo board
     // here, this is used as an error indicator for if anything goes wrong
     GPIO pin_led(
-        { .port       = pin_led_port,
-          .pin        = pin_led_pin,
-          .mode       = gpio::Mode::Output,
-          .outputType = gpio::OutputType::PushPull,
-          .speed      = gpio::Speed::Low,
-          .pull       = gpio::Pull::None }
+        {
+            .port       = pin_led_port,
+            .pin        = pin_led_pin,
+            .mode       = gpio::Mode::Output,
+            .outputType = gpio::OutputType::PushPull,
+            .speed      = gpio::Speed::Low,
+            .pull       = gpio::Pull::None
+        }
     );
     pin_led.unset();
     DefaultInterruptHandler default_handler( pin_led );
@@ -40,12 +42,14 @@ int main( void )
 
     // used to test the timer
     GPIO pin_test(
-        { .port       = pin_test_port,
-          .pin        = pin_test_pin,
-          .mode       = gpio::Mode::Output,
-          .outputType = gpio::OutputType::PushPull,
-          .speed      = gpio::Speed::Low,
-          .pull       = gpio::Pull::None }
+        {
+            .port       = pin_test_port,
+            .pin        = pin_test_pin,
+            .mode       = gpio::Mode::Output,
+            .outputType = gpio::OutputType::PushPull,
+            .speed      = gpio::Speed::Low,
+            .pull       = gpio::Pull::None
+        }
     );
 
     DelayTimer timer_delay( timer_delay_id, pin_led );
