@@ -3,6 +3,7 @@
 #include "mcu.hpp"
 #include "io.hpp"
 #include "status_indicator.hpp"
+#include <span>
 
 namespace dac
 {
@@ -22,10 +23,10 @@ struct Settings
 } // namespace dac
 
 
-class DacController
+class AudioController
 {
   public:
-    DacController( dac::Settings settings );
+    AudioController( dac::Settings settings );
 
     bool write_if_ready(uint32_t data);
     void write(uint32_t data);
@@ -41,12 +42,19 @@ class DacController
     constexpr uint32_t apply_channel(uint32_t config);
     volatile uint8_t *get_data_register();
 
-    void enable();
-    void enable_clock();
+    void enable_dma();
+
+    void configure_dma();
+    void configure_dac();
 
     volatile uint32_t *data_register;
 
     DAC_TypeDef *dac;
+    DMA_Channel_TypeDef *dma;
+    DMAMUX_Channel_TypeDef *dmamux;
+
     dac::Channel channel;
     StatusIndicator &indicator;
+
+    std::span<uint8_t> buffer;
 };
