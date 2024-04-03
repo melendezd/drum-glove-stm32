@@ -2,10 +2,11 @@
 #include "status_indicator.hpp"
 #include "timer.hpp"
 #include "util.hpp"
-
 #include "dac.hpp"
+
 #include "interrupts.hpp"
 #include "global_constants.hpp"
+#include <span>
 
 // ---- GPIO ----
 const auto pin_led_port = gpio::Port::B;
@@ -16,6 +17,7 @@ const auto pin_test_pin  = 5;
 
 // ---- Timers ----
 const auto timer_delay_id = timer::Id::Tim6;
+const auto timer_trigger_id = timer::Id::Tim7;
 
 // ----------------
 
@@ -53,20 +55,44 @@ int main( void )
     );
 
     DelayTimer timer_delay( timer_delay_id, pin_led );
+    TriggerTimer timer_trigger({
+        .id = timer_trigger_id,
+        .one_pulse_mode = false,
+        .auto_reload_value = 1000,
+        .prescaler_value = 0,
+        .error_indicator = pin_led
+    });
 
     StatusIndicator indicator( pin_led, timer_delay );
 
-    DacController dac( { .channel = dac::Channel::One, .indicator = indicator } );
+    const std::size_t buffer_size = 256;
+    uint8_t buffer_raw[buffer_size];
+    std::span<uint8_t> buffer(buffer_raw, 256);
 
+    // init buffer values
     uint8_t val = 0;
-    int delta = 1;
-    while ( 1 ) {
-        timer_delay.us( 500 );
-        while ( !dac.write_if_ready( val ) ) {
-            indicator.status_once( status::dac_not_ready );
-        }
+    uint8_t delta = 1;
+    for (int i = 0; i < buffer.size(); i++) {
+        buffer[i] = val;
         val += delta;
-        if (val == 0 || val == 255) delta *= -1;
+    }
+
+    AudioController audio({ 
+        .channel = dac::Channel::One,
+        .indicator = indicator,
+        .buffer = buffer,
+        .timer = timer_trigger
+    });
+    
+    //timer_delay.ms(500);
+    
+    if (!audio.is_ready()) indicator.status_once(status::dac_not_ready);
+
+    audio.start();
+
+    while(true)
+    {
+        indicator.status_once(status::ok);
     }
 
     return 0;

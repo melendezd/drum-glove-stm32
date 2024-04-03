@@ -1,47 +1,56 @@
 [
 {
   "directory": "/home/mapa/projects/drum-glove-stm32/build",
-  "command": "/nix/store/d3ijhx2fi37zhn6wmcxgr469p0ppgh91-gcc-arm-embedded-12.2.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++17 -o CMakeFiles/woof.dir/src/dac.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/dac.cpp",
-  "file": "/home/mapa/projects/drum-glove-stm32/src/dac.cpp"
+  "command": "/nix/store/19ksks8jk2jw49a9lbg1nc4jny9d3m0n-gcc-arm-embedded-12.3.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++23 -o CMakeFiles/woof.dir/src/dac.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/dac.cpp",
+  "file": "/home/mapa/projects/drum-glove-stm32/src/dac.cpp",
+  "output": "CMakeFiles/woof.dir/src/dac.cpp.obj"
 },
 {
   "directory": "/home/mapa/projects/drum-glove-stm32/build",
-  "command": "/nix/store/d3ijhx2fi37zhn6wmcxgr469p0ppgh91-gcc-arm-embedded-12.2.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++17 -o CMakeFiles/woof.dir/src/interrupts.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/interrupts.cpp",
-  "file": "/home/mapa/projects/drum-glove-stm32/src/interrupts.cpp"
+  "command": "/nix/store/19ksks8jk2jw49a9lbg1nc4jny9d3m0n-gcc-arm-embedded-12.3.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++23 -o CMakeFiles/woof.dir/src/interrupts.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/interrupts.cpp",
+  "file": "/home/mapa/projects/drum-glove-stm32/src/interrupts.cpp",
+  "output": "CMakeFiles/woof.dir/src/interrupts.cpp.obj"
 },
 {
   "directory": "/home/mapa/projects/drum-glove-stm32/build",
-  "command": "/nix/store/d3ijhx2fi37zhn6wmcxgr469p0ppgh91-gcc-arm-embedded-12.2.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++17 -o CMakeFiles/woof.dir/src/io.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/io.cpp",
-  "file": "/home/mapa/projects/drum-glove-stm32/src/io.cpp"
+  "command": "/nix/store/19ksks8jk2jw49a9lbg1nc4jny9d3m0n-gcc-arm-embedded-12.3.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++23 -o CMakeFiles/woof.dir/src/io.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/io.cpp",
+  "file": "/home/mapa/projects/drum-glove-stm32/src/io.cpp",
+  "output": "CMakeFiles/woof.dir/src/io.cpp.obj"
 },
 {
   "directory": "/home/mapa/projects/drum-glove-stm32/build",
-  "command": "/nix/store/d3ijhx2fi37zhn6wmcxgr469p0ppgh91-gcc-arm-embedded-12.2.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++17 -o CMakeFiles/woof.dir/src/main.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/main.cpp",
-  "file": "/home/mapa/projects/drum-glove-stm32/src/main.cpp"
+  "command": "/nix/store/19ksks8jk2jw49a9lbg1nc4jny9d3m0n-gcc-arm-embedded-12.3.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++23 -o CMakeFiles/woof.dir/src/main.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/main.cpp",
+  "file": "/home/mapa/projects/drum-glove-stm32/src/main.cpp",
+  "output": "CMakeFiles/woof.dir/src/main.cpp.obj"
 },
 {
   "directory": "/home/mapa/projects/drum-glove-stm32/build",
   "command": "/nix/store/d3ijhx2fi37zhn6wmcxgr469p0ppgh91-gcc-arm-embedded-12.2.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -c -O0 -mcpu=cortex-m4 -mthumb -Wall -fmessage-length=0 -o CMakeFiles/woof.dir/src/startup.S.obj -c /home/mapa/projects/drum-glove-stm32/src/startup.S",
-  "file": "/home/mapa/projects/drum-glove-stm32/src/startup.S"
+  "file": "/home/mapa/projects/drum-glove-stm32/src/startup.S",
+  "output": "CMakeFiles/woof.dir/src/startup.S.obj"
 },
 {
   "directory": "/home/mapa/projects/drum-glove-stm32/build",
-  "command": "/nix/store/d3ijhx2fi37zhn6wmcxgr469p0ppgh91-gcc-arm-embedded-12.2.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++17 -o CMakeFiles/woof.dir/src/status_indicator.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/status_indicator.cpp",
-  "file": "/home/mapa/projects/drum-glove-stm32/src/status_indicator.cpp"
+  "command": "/nix/store/19ksks8jk2jw49a9lbg1nc4jny9d3m0n-gcc-arm-embedded-12.3.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++23 -o CMakeFiles/woof.dir/src/status_indicator.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/status_indicator.cpp",
+  "file": "/home/mapa/projects/drum-glove-stm32/src/status_indicator.cpp",
+  "output": "CMakeFiles/woof.dir/src/status_indicator.cpp.obj"
 },
 {
   "directory": "/home/mapa/projects/drum-glove-stm32/build",
-  "command": "/nix/store/d3ijhx2fi37zhn6wmcxgr469p0ppgh91-gcc-arm-embedded-12.2.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++17 -o CMakeFiles/woof.dir/src/timer.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/timer.cpp",
-  "file": "/home/mapa/projects/drum-glove-stm32/src/timer.cpp"
+  "command": "/nix/store/19ksks8jk2jw49a9lbg1nc4jny9d3m0n-gcc-arm-embedded-12.3.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++23 -o CMakeFiles/woof.dir/src/timer.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/timer.cpp",
+  "file": "/home/mapa/projects/drum-glove-stm32/src/timer.cpp",
+  "output": "CMakeFiles/woof.dir/src/timer.cpp.obj"
 },
 {
   "directory": "/home/mapa/projects/drum-glove-stm32/build",
-  "command": "/nix/store/d3ijhx2fi37zhn6wmcxgr469p0ppgh91-gcc-arm-embedded-12.2.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++17 -o CMakeFiles/woof.dir/src/util.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/util.cpp",
-  "file": "/home/mapa/projects/drum-glove-stm32/src/util.cpp"
+  "command": "/nix/store/19ksks8jk2jw49a9lbg1nc4jny9d3m0n-gcc-arm-embedded-12.3.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti -std=gnu++23 -o CMakeFiles/woof.dir/src/util.cpp.obj -c /home/mapa/projects/drum-glove-stm32/src/util.cpp",
+  "file": "/home/mapa/projects/drum-glove-stm32/src/util.cpp",
+  "output": "CMakeFiles/woof.dir/src/util.cpp.obj"
 },
 {
   "directory": "/home/mapa/projects/drum-glove-stm32/build",
   "command": "/nix/store/d3ijhx2fi37zhn6wmcxgr469p0ppgh91-gcc-arm-embedded-12.2.rel1/bin/arm-none-eabi-g++  -I/home/mapa/projects/drum-glove-stm32/include -c -O0 -mcpu=cortex-m4 -mthumb -Wall -fmessage-length=0 -o CMakeFiles/woof.dir/src/vector_table.S.obj -c /home/mapa/projects/drum-glove-stm32/src/vector_table.S",
-  "file": "/home/mapa/projects/drum-glove-stm32/src/vector_table.S"
+  "file": "/home/mapa/projects/drum-glove-stm32/src/vector_table.S",
+  "output": "CMakeFiles/woof.dir/src/vector_table.S.obj"
 }
 ]

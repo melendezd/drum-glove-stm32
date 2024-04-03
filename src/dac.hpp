@@ -1,7 +1,6 @@
 #pragma once
 
 #include "mcu.hpp"
-#include "io.hpp"
 #include "status_indicator.hpp"
 #include <span>
 
@@ -18,6 +17,8 @@ struct Settings
     // DAC channel; must be 1 or 2
     Channel channel;
     StatusIndicator &indicator;
+    std::span<uint8_t> buffer;
+    TriggerTimer &timer;
 };
 
 } // namespace dac
@@ -28,11 +29,11 @@ class AudioController
   public:
     AudioController( dac::Settings settings );
 
-    bool write_if_ready(uint32_t data);
-    void write(uint32_t data);
-
     // Whether the DAC channel is ready to accept the trigger or output data.
     bool is_ready();
+
+    void start();
+    void stop();
   private:
 
     // The DAC_CR register contains two copies of the same configuration option bits;
@@ -41,11 +42,13 @@ class AudioController
     // on which channel you select.
     constexpr uint32_t apply_channel(uint32_t config);
     volatile uint8_t *get_data_register();
+    uint32_t get_tsel_value();
 
-    void enable_dma();
+    void enable_dac();
 
     void configure_dma();
     void configure_dac();
+    void configure_timer();
 
     volatile uint32_t *data_register;
 
@@ -54,7 +57,9 @@ class AudioController
     DMAMUX_Channel_TypeDef *dmamux;
 
     dac::Channel channel;
+
     StatusIndicator &indicator;
+    TriggerTimer &timer;
 
     std::span<uint8_t> buffer;
 };

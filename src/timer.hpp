@@ -6,11 +6,22 @@
 
 namespace timer
 {
+
 enum class Id
 {
     Tim6,
     Tim7
 };
+
+struct TriggerTimerSettings
+{
+    Id id;
+    bool one_pulse_mode;
+    uint16_t auto_reload_value;
+    uint16_t prescaler_value;
+    GPIO &error_indicator;
+};
+
 } // namespace timer
 
 
@@ -37,3 +48,22 @@ class DelayTimer
 };
 
 
+class TriggerTimer
+{
+  public:
+      TriggerTimer(timer::TriggerTimerSettings settings);
+
+      void start();
+      void stop();
+
+      timer::Id id;
+
+  private:
+      TIM_TypeDef *tim;
+
+      GPIO &error_indicator;
+
+      TIM_TypeDef *get_timer_base(timer::Id timer_id);
+      void enable_clock(timer::Id timer_id);
+      void error();
+};
