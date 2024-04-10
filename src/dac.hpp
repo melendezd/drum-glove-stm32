@@ -50,6 +50,7 @@ class AudioController
     void enable_dac();
 
     void configure_dma();
+    void enable_dma();
     void configure_dac();
 
     bool is_status_dma_underrun();

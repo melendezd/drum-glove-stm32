@@ -16,9 +16,11 @@ AudioController::AudioController( dac::Settings settings )
     , amp_active(settings.amp_active)
     , buffer( settings.buffer )
 {
-    configure_dma();
     configure_dac();
+    configure_dma();
+
     enable_dac();
+    enable_dma();
 }
 
 void AudioController::configure_dac()
@@ -104,8 +106,10 @@ void AudioController::configure_dma()
         dmamux_ccr_mask,
         0x6 << DMAMUX_CxCR_DMAREQ_ID_Pos // DAC1_CH1
     );
-    
-    // enable DMA
+}
+
+void AudioController::enable_dma()
+{
     SET_BIT(dma->CCR, DMA_CCR_EN);
 }
 

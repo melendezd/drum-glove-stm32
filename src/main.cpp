@@ -117,11 +117,6 @@ int main( void )
         timer_delay.ms(delay_time_ms);
     }
 
-    while(true)
-    {
-        indicator.status_once(status::ok);
-    }
-
     return 0;
 }
 
