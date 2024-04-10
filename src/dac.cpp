@@ -1,7 +1,9 @@
 #include "dac.hpp"
 
+#include "global_constants.hpp"
 #include "mcu.hpp"
 #include "stm32g431xx.h"
+#include "util.hpp"
 
 // TODO: make this actually work for channels other than channel 1
 AudioController::AudioController( dac::Settings settings )
@@ -11,6 +13,7 @@ AudioController::AudioController( dac::Settings settings )
     , channel( settings.channel )
     , indicator( settings.indicator )
     , timer( settings.timer )
+    , amp_active(settings.amp_active)
     , buffer( settings.buffer )
 {
     configure_dma();
@@ -20,26 +23,30 @@ AudioController::AudioController( dac::Settings settings )
 
 void AudioController::configure_dac()
 {
-    // TODO (somewhere): configure dac trigger timer
     SET_BIT( RCC->AHB2ENR, RCC_AHB2ENR_DAC1EN );
+
+    // We ensure the DAC_MCR configuration register is at its reset value 0x00000000. Hence:
+    // - Input data is in unsigned format
+    // - Channel is connected to external pin with buffer enabled
+    CLEAR_REG( dac->MCR );
 
     // ENx = 0: disable DAC for now
     // TENx = 0: trigger disabled, data is shifted one dac_hclk cycle after it is written
     // TSELx = 0: if trigger enabled, trigger is writing to SWTRIGx (software trigger)
     uint32_t dac_cr_mask = 0xFFFFFFFFU & ~((1U << 15) | (1U << 31));
-
     MODIFY_REG(
         dac->CR,
         dac_cr_mask,
         DAC_CR_TEN1 // enable trigger
             | get_tsel_value() << DAC_CR_TSEL1_Pos // trigger from timer
             | DAC_CR_DMAEN1 // enable DMA mode
+            | DAC_CR_DMAUDRIE1 // enable DMA underrun interrupt
     );
-
-    // We ensure the DAC_MCR configuration register is at its reset value 0x00000000. Hence:
-    // - Input data is in unsigned format
-    // - Channel is connected to external pin with buffer enabled
-    CLEAR_REG( dac->MCR );
+    
+    // enable interrupt
+    NVIC_ClearPendingIRQ(TIM6_DAC_IRQn);
+    NVIC_SetPriority(TIM6_DAC_IRQn, 1u);
+    NVIC_EnableIRQ(TIM6_DAC_IRQn);
 
     switch ( channel ) {
     case dac::Channel::One:
@@ -97,10 +104,6 @@ void AudioController::configure_dma()
     SET_BIT(dma->CCR, DMA_CCR_EN);
 }
 
-void AudioController::configure_timer()
-{
-}
-
 constexpr uint32_t AudioController::apply_channel( uint32_t config )
 {
     int channel_number = 0;
@@ -142,10 +145,18 @@ uint32_t AudioController::get_tsel_value()
 
 void AudioController::start()
 {
+    amp_active.set();
+    spin(100'000);
     timer.start();
 }
 
 void AudioController::stop()
 {
     timer.stop();
+    amp_active.unset();
+}
+
+void AudioController::isr_dma_underrun()
+{
+    indicator.status_forever(status::dac_dma_underrun);
 }

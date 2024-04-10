@@ -94,6 +94,7 @@ TriggerTimer::TriggerTimer( timer::TriggerTimerSettings settings )
     // use update event as trigger output
     MODIFY_REG(cast16(tim->CR2), TIM_CR2_MMS, TIM_CR2_MMS_1);
 
+    cast16( tim->CNT ) = 0;
     cast16( tim->PSC ) = settings.prescaler_value;
     cast16( tim->ARR ) = settings.auto_reload_value;
 }

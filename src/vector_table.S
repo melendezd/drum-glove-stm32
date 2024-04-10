@@ -303,7 +303,7 @@ vtable:
     .thumb_set UART4_IRQHandler,default_interrupt_handler
 
     .weak    TIM6_DAC_IRQHandler
-    .thumb_set TIM6_DAC_IRQHandler,default_interrupt_handler
+    .thumb_set TIM6_DAC_IRQHandler,isr_dac_dma_underrun
 
     .weak    TIM7_IRQHandler
     .thumb_set TIM7_IRQHandler,default_interrupt_handler

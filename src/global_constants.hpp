@@ -14,4 +14,6 @@ const uint32_t dac_not_ready = 2;
 
 const uint32_t ok = 3;
 
+const uint32_t dac_dma_underrun = 4;
+
 }

@@ -19,6 +19,7 @@ struct Settings
     StatusIndicator &indicator;
     std::span<uint8_t> buffer;
     TriggerTimer &timer;
+    GPIO &amp_active;
 };
 
 } // namespace dac
@@ -34,6 +35,8 @@ class AudioController
 
     void start();
     void stop();
+
+    void isr_dma_underrun();
   private:
 
     // The DAC_CR register contains two copies of the same configuration option bits;
@@ -60,6 +63,7 @@ class AudioController
 
     StatusIndicator &indicator;
     TriggerTimer &timer;
+    GPIO &amp_active;
 
     std::span<uint8_t> buffer;
 };
