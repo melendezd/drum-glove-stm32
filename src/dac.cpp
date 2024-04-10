@@ -58,6 +58,11 @@ void AudioController::configure_dac()
     }
 }
 
+bool AudioController::is_status_dma_underrun()
+{
+    return READ_BIT(dac->SR, DAC_SR_DMAUDR1) != 0;
+}
+
 void AudioController::configure_dma()
 {
     // enable DMA and DMAMUX clocks
@@ -146,7 +151,6 @@ uint32_t AudioController::get_tsel_value()
 void AudioController::start()
 {
     amp_active.set();
-    spin(100'000);
     timer.start();
 }
 
@@ -158,5 +162,5 @@ void AudioController::stop()
 
 void AudioController::isr_dma_underrun()
 {
-    indicator.status_forever(status::dac_dma_underrun);
+    if (is_status_dma_underrun()) indicator.status_forever(status::dac_dma_underrun);
 }

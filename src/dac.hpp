@@ -51,7 +51,8 @@ class AudioController
 
     void configure_dma();
     void configure_dac();
-    void configure_timer();
+
+    bool is_status_dma_underrun();
 
     volatile uint32_t *data_register;
 
