@@ -18,6 +18,26 @@ const auto pin_test_pin  = 5;
 const auto pin_amp_active_port = gpio::Port::A;
 const auto pin_amp_active_pin  = 7;
 
+// the following are commented out because no gpio setup is needed
+// ("additional function" for DAC & ADC is set up through non-GPIO peripheral registers)
+
+// PA4 used for DAC out
+// const auto pin_dac_out_port = gpio::Port::A;
+// const auto pin_dac_out_pin  = 4;
+
+// ADC2_IN13
+// const auto pin_ain_1_port = gpio::Port::A;
+// const auto pin_ain1_pin  = 5;
+
+// ADC2_IN3
+// const auto pin_ain_2_port = gpio::Port::A;
+// const auto pin_ain2_pin  = 6;
+
+// ADC2_IN12
+// const auto pin_ain_3_port = gpio::Port::B;
+// const auto pin_ain3_pin  = 2;
+
+
 // ---- Timers ----
 const auto timer_delay_id = timer::Id::Tim6;
 const auto timer_trigger_id = timer::Id::Tim7;
@@ -78,7 +98,7 @@ int main( void )
 
     StatusIndicator indicator( pin_led, timer_delay );
 
-    const std::size_t buffer_size = 1024;
+    const size_t buffer_size = 1024;
     uint8_t buffer_raw[buffer_size];
     std::span<uint8_t> buffer(buffer_raw, buffer_size);
 
