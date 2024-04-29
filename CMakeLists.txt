@@ -26,6 +26,7 @@ set(BIN_FILE ${CMAKE_BINARY_DIR}/${EXE_NAME}.bin)
 project(woof LANGUAGES CXX ASM)
 file( GLOB SOURCES
     "${CMAKE_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_SOURCE_DIR}/res/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/*.S"
 )
 add_executable(woof ${SOURCES})
@@ -33,6 +34,13 @@ set_target_properties(woof PROPERTIES OUTPUT_NAME "${EXE_NAME}.elf")
 
 target_include_directories(woof PRIVATE
     ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/res
+)
+
+add_custom_command(TARGET woof PRE_BUILD
+    COMMAND "${CMAKE_SOURCE_DIR}/res/convert.sh"
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/res
+    COMMENT "Converting audio files"
 )
 
 add_custom_command(TARGET woof POST_BUILD

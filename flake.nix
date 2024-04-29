@@ -41,6 +41,10 @@
 
         # python for gdb script
         python3
+
+        # utilities for processing the audio files
+        sox
+        xxd
       ];
     in
     {

@@ -17,6 +17,13 @@ SECTIONS
         . = ALIGN(4);
     } >FLASH
 
+    .sample_data :
+    {
+        . = ALIGN(4);
+        KEEP (*(.sample_data))
+        . = ALIGN(4);
+    } >FLASH
+
     .text :
     {
         . = ALIGN(4);

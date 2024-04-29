@@ -8,6 +8,11 @@
 #include "global_constants.hpp"
 #include <span>
 
+namespace bark
+{
+    int ruff = 5;
+}
+
 // ---- GPIO ----
 const auto pin_led_port = gpio::Port::B;
 const auto pin_led_pin  = 8;
