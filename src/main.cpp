@@ -79,7 +79,7 @@ int main( void )
     TriggerTimer timer_trigger({
         .id = timer_trigger_id,
         .one_pulse_mode = false,
-        .auto_reload_value = 500,
+        .auto_reload_value = constants::clock_frequency / constants::sample_rate,
         .prescaler_value = 0,
         .error_indicator = pin_led
     });
