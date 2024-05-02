@@ -8,10 +8,7 @@
 #include "global_constants.hpp"
 #include <span>
 
-namespace bark
-{
-    int ruff = 5;
-}
+#include "samples.hpp"
 
 // ---- GPIO ----
 const auto pin_led_port = gpio::Port::B;
@@ -42,7 +39,6 @@ const auto pin_amp_active_pin  = 7;
 // const auto pin_ain_3_port = gpio::Port::B;
 // const auto pin_ain3_pin  = 2;
 
-
 // ---- Timers ----
 const auto timer_delay_id = timer::Id::Tim6;
 const auto timer_trigger_id = timer::Id::Tim7;
@@ -50,8 +46,6 @@ const auto timer_trigger_id = timer::Id::Tim7;
 // ----------------
 
 InterruptHandlers *g_interrupt_handlers = nullptr;
-
-void fill_buffer(std::span<uint8_t> buffer, uint8_t delta);
 
 int main( void )
 {
@@ -85,7 +79,7 @@ int main( void )
     TriggerTimer timer_trigger({
         .id = timer_trigger_id,
         .one_pulse_mode = false,
-        .auto_reload_value = 100,
+        .auto_reload_value = 500,
         .prescaler_value = 0,
         .error_indicator = pin_led
     });
@@ -101,14 +95,10 @@ int main( void )
         }
     );
 
+
     StatusIndicator indicator( pin_led, timer_delay );
 
-    const size_t buffer_size = 1024;
-    uint8_t buffer_raw[buffer_size];
-    std::span<uint8_t> buffer(buffer_raw, buffer_size);
-
-    // init buffer values
-    fill_buffer(buffer, 1);
+    std::span<uint8_t> buffer(sample_data::woody, sample_data::woody_len);
 
     timer_delay.ms(500);
 
@@ -127,32 +117,13 @@ int main( void )
     };
     g_interrupt_handlers = &interrupt_handlers;
     
-    
-    if (!audio.is_ready()) indicator.status_once(status::dac_not_ready);
+    while (!audio.is_ready()) indicator.status_once(status::dac_not_ready);
 
-    uint16_t delay_time_ms = 100;
-    fill_buffer(buffer, 1);
     audio.start();
     while(true) {
-        fill_buffer(buffer, 1);
-        timer_delay.ms(delay_time_ms);
-        fill_buffer(buffer, 2);
-        timer_delay.ms(delay_time_ms);
-        fill_buffer(buffer, 3);
-        timer_delay.ms(delay_time_ms);
     }
 
     return 0;
-}
-
-void fill_buffer(std::span<uint8_t> buffer, uint8_t delta)
-{
-    uint8_t val = 1;
-    for (int i = 0; i < buffer.size(); i++) {
-        buffer[i] = val;
-        val += delta;
-        if (val == 255 || val == 0) delta *= -1;
-    }
 }
 
 DefaultInterruptHandler::DefaultInterruptHandler( GPIO &pin ) : pin( pin ) { }

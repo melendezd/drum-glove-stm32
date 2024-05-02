@@ -13,7 +13,8 @@ for file in *.wav; do
         sox "$file" -t raw "${name}"
 
         # output declaration to header file
-        echo "extern unsigned char *${name};" >> "${out_name}.hpp"
+        echo "extern unsigned char ${name}[];" >> "${out_name}.hpp"
+        echo "extern unsigned int ${name}_len;" >> "${out_name}.hpp"
 
         # output definition to cpp file
         xxd -i "${name}" >> "${out_name}.cpp"

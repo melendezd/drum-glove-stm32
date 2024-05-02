@@ -4,7 +4,7 @@ _min_leftover_ram = 0x400;
 
 MEMORY
 {
-    FLASH ( rx ) : ORIGIN = 0x08000000, LENGTH = 512K
+    FLASH ( rx ) : ORIGIN = 0x08000000, LENGTH = 128K
     RAM ( rxw )  : ORIGIN = 0x20000000, LENGTH = 16K
 }
 
@@ -14,13 +14,6 @@ SECTIONS
     {
         . = ALIGN(4);
         KEEP (*(.vector_table))
-        . = ALIGN(4);
-    } >FLASH
-
-    .sample_data :
-    {
-        . = ALIGN(4);
-        KEEP (*(.sample_data))
         . = ALIGN(4);
     } >FLASH
 
@@ -39,6 +32,13 @@ SECTIONS
         *(.rodata*)
         . = ALIGN(4);
     }
+
+    .sample_data :
+    {
+        . = ALIGN(4);
+        KEEP (*(.sample_data))
+        . = ALIGN(4);
+    } >FLASH
 
     _sidata = .;
     .data : AT(_sidata)
