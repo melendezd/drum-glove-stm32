@@ -2,6 +2,7 @@
 
 #include "mcu.hpp"
 #include "status_indicator.hpp"
+#include "drum_machine.hpp"
 #include <span>
 
 namespace dac
@@ -19,7 +20,9 @@ struct Settings
     StatusIndicator &indicator;
     std::span<uint8_t> buffer;
     TriggerTimer &timer;
+    DelayTimer &delay;
     GPIO &amp_active;
+    DrumMachine &drum_machine;
 };
 
 } // namespace dac
@@ -37,6 +40,7 @@ class AudioController
     void stop();
 
     void isr_dma_underrun();
+    void isr_dma();
   private:
 
     // The DAC_CR register contains two copies of the same configuration option bits;
@@ -54,18 +58,26 @@ class AudioController
     void configure_dac();
 
     bool is_status_dma_underrun();
+    bool is_status_half_transfer();
+    bool is_status_full_transfer();
 
     volatile uint32_t *data_register;
 
     DAC_TypeDef *dac;
     DMA_Channel_TypeDef *dma;
+    DMA_TypeDef *dma_isr;
     DMAMUX_Channel_TypeDef *dmamux;
 
     dac::Channel channel;
 
     StatusIndicator &indicator;
     TriggerTimer &timer;
+    DelayTimer &delay;
     GPIO &amp_active;
+    DrumMachine &drum_machine;
 
+    volatile int stale_buffer_index;
     std::span<uint8_t> buffer;
+  public:
+    std::span<uint8_t> buffers[2];
 };

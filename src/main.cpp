@@ -6,6 +6,7 @@
 
 #include "interrupts.hpp"
 #include "global_constants.hpp"
+#include "drum_machine.hpp"
 #include <span>
 
 #include "samples.hpp"
@@ -14,11 +15,11 @@
 const auto pin_led_port = gpio::Port::B;
 const auto pin_led_pin  = 8;
 
-const auto pin_test_port = gpio::Port::B;
-const auto pin_test_pin  = 5;
-
 const auto pin_amp_active_port = gpio::Port::A;
 const auto pin_amp_active_pin  = 7;
+
+const auto pin_trigger_1_port = gpio::Port::A;
+const auto pin_trigger_1_pin  = 11;
 
 // the following are commented out because no gpio setup is needed
 // ("additional function" for DAC & ADC is set up through non-GPIO peripheral registers)
@@ -76,31 +77,60 @@ int main( void )
         .prescaler_value = 0,
         .error_indicator = pin_led
     });
-    GPIO pin_amp_active(
-        {
-            .port       = pin_amp_active_port,
-            .pin        = pin_amp_active_pin,
-            .mode       = gpio::Mode::Output,
-            .outputType = gpio::OutputType::PushPull,
-            .speed      = gpio::Speed::Low,
-            .pull       = gpio::Pull::Down
-        }
-    );
+    GPIO pin_amp_active({
+        .port       = pin_amp_active_port,
+        .pin        = pin_amp_active_pin,
+        .mode       = gpio::Mode::Output,
+        .outputType = gpio::OutputType::PushPull,
+        .speed      = gpio::Speed::Low,
+        .pull       = gpio::Pull::Down
+    });
     StatusIndicator indicator( pin_led, timer_delay );
-    std::span<uint8_t> buffer(sample_data::woody, sample_data::woody_len);
+
+    GPIO pin_trigger_1({
+        .port       = pin_trigger_1_port,
+        .pin        = pin_trigger_1_pin,
+        .mode       = gpio::Mode::Input,
+        .outputType = gpio::OutputType::PushPull,
+        .speed      = gpio::Speed::Low,
+        .pull       = gpio::Pull::None
+    });
+
+    const int buffer_len = 512;
+    uint8_t buffer[buffer_len];
+    std::span<uint8_t> buffer_span(buffer, buffer_len);
+    for (uint8_t &sample : buffer_span) sample = 0;
+
+    DrumMachine drum_machine(pin_trigger_1);
+
     AudioController audio({ 
         .channel = dac::Channel::One,
         .indicator = indicator,
-        .buffer = buffer,
+        .buffer = buffer_span,
         .timer = timer_dac_trigger,
+        .delay = timer_delay,
         .amp_active = pin_amp_active,
+        .drum_machine = drum_machine,
     });
     g_interrupt_handlers->dac_dma_underrun_handler = &audio;
+    g_interrupt_handlers->dma1_channel1_handler = &audio;
     
     while (!audio.is_ready()) indicator.status_once(status::dac_not_ready);
 
     audio.start();
-    while(true);
+
+    bool button_was_down = false;
+    bool button_is_down = false;
+    int sample_index = 0;
+    while(true) {
+        button_was_down = button_is_down;
+        button_is_down = pin_trigger_1.read();
+
+        if (button_is_down && !button_was_down) {
+            drum_machine.play(sample_index);
+            sample_index = (sample_index + 1) % 3;
+        }
+    }
 
     return 0;
 }

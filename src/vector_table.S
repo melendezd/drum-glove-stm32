@@ -189,7 +189,7 @@ vtable:
     .thumb_set EXTI4_IRQHandler,default_interrupt_handler
 
     .weak    DMA1_Channel1_IRQHandler
-    .thumb_set DMA1_Channel1_IRQHandler,default_interrupt_handler
+    .thumb_set DMA1_Channel1_IRQHandler,isr_dma1_channel1
 
     .weak    DMA1_Channel2_IRQHandler
     .thumb_set DMA1_Channel2_IRQHandler,default_interrupt_handler

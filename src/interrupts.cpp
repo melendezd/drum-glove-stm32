@@ -13,4 +13,10 @@ extern "C"
         if (g_interrupt_handlers->dac_dma_underrun_handler)
             g_interrupt_handlers->dac_dma_underrun_handler->isr_dma_underrun();
     }
+
+    void isr_dma1_channel1(void)
+    {
+        if (g_interrupt_handlers->dma1_channel1_handler)
+            g_interrupt_handlers->dma1_channel1_handler->isr_dma();
+    }
 }

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 out_name='samples'
-namespace_name='sample_data'
+namespace_name='samples'
 
 echo "namespace ${namespace_name} {" > "${out_name}.cpp"
 echo "namespace ${namespace_name} {" > "${out_name}.hpp"

@@ -1,4 +1,4 @@
-namespace sample_data {
+namespace samples {
 extern unsigned char kick[];
 extern unsigned int kick_len;
 extern unsigned char snare[];

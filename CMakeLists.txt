@@ -14,8 +14,8 @@ set(CMAKE_SIZE_UTIL "$ENV{GCC_TOOLCHAIN_DIR}/bin/arm-none-eabi-size")
 
 # compile/asm/link flags
 set(LINKER_SCRIPT "${CMAKE_SOURCE_DIR}/stm32g431kb.ld")
-set(CMAKE_ASM_FLAGS "-c -O0 -mcpu=cortex-m4 -mthumb -Wall -fmessage-length=0")
-set(CMAKE_CXX_FLAGS "-mcpu=cortex-m4 -mthumb -Wall -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -fno-rtti")
+set(CMAKE_ASM_FLAGS "-c -mcpu=cortex-m4 -Og -mthumb -Wall -fmessage-length=0")
+set(CMAKE_CXX_FLAGS "-mcpu=cortex-m4 -mthumb -Wall -Og -g3 -fmessage-length=0 --specs=nosys.specs -fno-exceptions -fno-unwind-tables -nostdlib -ffreestanding -fno-rtti")
 set(CMAKE_EXE_LINKER_FLAGS "-lgcc -T${LINKER_SCRIPT}")
 
 # outputs
