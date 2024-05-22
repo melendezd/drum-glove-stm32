@@ -104,7 +104,6 @@ int main( void )
     DrumMachine drum_machine(pin_trigger_1);
 
     AudioController audio({ 
-        .channel = dac::Channel::One,
         .indicator = indicator,
         .buffer = buffer_span,
         .timer = timer_dac_trigger,

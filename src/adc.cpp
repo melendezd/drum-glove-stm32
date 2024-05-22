@@ -33,10 +33,14 @@ ADCController::ADCController(DelayTimer &delay) : adc( ADC2 ), delay(delay)
     uint32_t sqr1_num_conversions = (6U - 1) << ADC_SQR1_L_Pos; // 6 conversions in a sequence
     uint32_t sqr1_conversion_1 = 3U << ADC_SQR1_SQ1_Pos;
     uint32_t sqr1_conversion_2 = 3U << ADC_SQR1_SQ2_Pos;
-    uint32_t sqr1_conversion_3 = 12U << ADC_SQR1_SQ3_Pos;
-    uint32_t sqr1_conversion_4 = 12U << ADC_SQR1_SQ4_Pos;
-    uint32_t sqr2_conversion_5 = 13U << ADC_SQR2_SQ5_Pos;
-    uint32_t sqr2_conversion_6 = 13U << ADC_SQR2_SQ6_Pos;
+    //uint32_t sqr1_conversion_3 = 12U << ADC_SQR1_SQ3_Pos;
+    //uint32_t sqr1_conversion_4 = 12U << ADC_SQR1_SQ4_Pos;
+    //uint32_t sqr2_conversion_5 = 13U << ADC_SQR2_SQ5_Pos;
+    //uint32_t sqr2_conversion_6 = 13U << ADC_SQR2_SQ6_Pos;
+    uint32_t sqr1_conversion_3 = 3U << ADC_SQR1_SQ3_Pos;
+    uint32_t sqr1_conversion_4 = 3U << ADC_SQR1_SQ4_Pos;
+    uint32_t sqr2_conversion_5 = 3U << ADC_SQR2_SQ5_Pos;
+    uint32_t sqr2_conversion_6 = 3U << ADC_SQR2_SQ6_Pos;
     uint32_t sqr1_conversions = 
         sqr1_conversion_1
             | sqr1_conversion_2

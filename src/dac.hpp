@@ -5,18 +5,11 @@
 #include "drum_machine.hpp"
 #include <span>
 
-namespace dac
+namespace audio
 {
-
-enum class Channel
-{
-    One, Two
-};
 
 struct Settings
 {
-    // DAC channel; must be 1 or 2
-    Channel channel;
     StatusIndicator &indicator;
     std::span<uint8_t> buffer;
     TriggerTimer &timer;
@@ -31,7 +24,7 @@ struct Settings
 class AudioController
 {
   public:
-    AudioController( dac::Settings settings );
+    AudioController( audio::Settings settings );
 
     // Whether the DAC channel is ready to accept the trigger or output data.
     bool is_ready();
@@ -43,11 +36,6 @@ class AudioController
     void isr_dma();
   private:
 
-    // The DAC_CR register contains two copies of the same configuration option bits;
-    // the least significant 16 for channel 1, and the most significant 16 for channel 2.
-    // This function takes config bits in the least siginficant 16 bits and shifts them depending
-    // on which channel you select.
-    constexpr uint32_t apply_channel(uint32_t config);
     volatile uint8_t *get_data_register();
     uint32_t get_tsel_value();
 
@@ -68,8 +56,6 @@ class AudioController
     DMA_TypeDef *dma_isr;
     DMAMUX_Channel_TypeDef *dmamux;
 
-    dac::Channel channel;
-
     StatusIndicator &indicator;
     TriggerTimer &timer;
     DelayTimer &delay;
@@ -78,6 +64,5 @@ class AudioController
 
     volatile int stale_buffer_index;
     std::span<uint8_t> buffer;
-  public:
     std::span<uint8_t> buffers[2];
 };

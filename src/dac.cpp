@@ -4,13 +4,11 @@
 #include "mcu.hpp"
 #include "stm32g431xx.h"
 
-// TODO: make this actually work for channels other than channel 1
-AudioController::AudioController( dac::Settings settings )
+AudioController::AudioController( audio::Settings settings )
     : dac( DAC )
     , dma( DMA1_Channel1 )
     , dma_isr( DMA1 )
     , dmamux( DMAMUX1_Channel0 )
-    , channel( settings.channel )
     , indicator( settings.indicator )
     , timer( settings.timer )
     , delay( settings.delay )
@@ -60,14 +58,7 @@ void AudioController::configure_dac()
     NVIC_SetPriority( DMA1_Channel1_IRQn, 1u );
     NVIC_EnableIRQ( DMA1_Channel1_IRQn );
 
-    switch ( channel ) {
-    case dac::Channel::One:
-        data_register = &dac->DHR8R1;
-        break;
-    case dac::Channel::Two:
-        data_register = &dac->DHR8R2;
-        break;
-    }
+    data_register = &dac->DHR8R1;
 }
 
 bool AudioController::is_status_dma_underrun()
@@ -116,28 +107,14 @@ void AudioController::enable_dma()
     SET_BIT( dma->CCR, DMA_CCR_EN );
 }
 
-constexpr uint32_t AudioController::apply_channel( uint32_t config )
-{
-    int channel_number = 0;
-    switch ( channel ) {
-    case dac::Channel::One:
-        channel_number = 0;
-        break;
-    case dac::Channel::Two:
-        channel_number = 1;
-        break;
-    }
-    return config << channel_number * 16;
-}
-
 bool AudioController::is_ready()
 {
-    return READ_BIT( dac->SR, apply_channel( DAC_SR_DAC1RDY ) ) != 0;
+    return READ_BIT( dac->SR, DAC_SR_DAC1RDY ) != 0;
 }
 
 void AudioController::enable_dac()
 {
-    SET_BIT( dac->CR, apply_channel( DAC_CR_EN1 ) );
+    SET_BIT( dac->CR, DAC_CR_EN1 );
 }
 
 uint32_t AudioController::get_tsel_value()
