@@ -16,6 +16,7 @@ struct Settings
     DelayTimer &delay;
     GPIO &amp_active;
     DrumMachine &drum_machine;
+    std::span<volatile uint8_t> adc_buffer;
 };
 
 } // namespace dac
@@ -61,6 +62,8 @@ class AudioController
     DelayTimer &delay;
     GPIO &amp_active;
     DrumMachine &drum_machine;
+
+    std::span<volatile uint8_t> adc_buffer;
 
     volatile int stale_buffer_index;
     std::span<uint8_t> buffer;

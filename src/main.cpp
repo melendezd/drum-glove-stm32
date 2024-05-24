@@ -100,6 +100,9 @@ int main( void )
     for (uint8_t &sample : buffer_span) sample = 0;
 
     DrumMachine drum_machine(pin_trigger_1);
+    const int adc_buffer_len = buffer_len / 2;
+    volatile uint8_t adc_buffer[adc_buffer_len];
+    std::span<volatile uint8_t> adc_buffer_span(adc_buffer, adc_buffer_len);
 
     AudioController audio({ 
         .indicator = indicator,
@@ -108,6 +111,7 @@ int main( void )
         .delay = timer_delay,
         .amp_active = pin_amp_active,
         .drum_machine = drum_machine,
+        .adc_buffer = adc_buffer
     });
     g_interrupt_handlers->dac_dma_underrun_handler = &audio;
     g_interrupt_handlers->dma1_channel1_handler = &audio;
@@ -116,6 +120,7 @@ int main( void )
 
     audio.start();
 
+    uint8_t val = 0;
     bool button_was_down = false;
     bool button_is_down = false;
     int sample_index = 0;
@@ -124,8 +129,15 @@ int main( void )
         button_is_down = pin_trigger_1.read();
 
         if (button_is_down && !button_was_down) {
+            /*
             drum_machine.play(sample_index);
             sample_index = (sample_index + 1) % 3;
+            */
+            val += 1;
+            if (val >= 16) val = 0;
+            for (int i = 0; i < adc_buffer_span.size(); i++) {
+                adc_buffer_span[i] = i * val;
+            }
         }
     }
 
