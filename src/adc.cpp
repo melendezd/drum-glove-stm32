@@ -1,17 +1,13 @@
 #include "adc.hpp"
 
 // TODO: pass in trigger timer
-ADCController::ADCController(DelayTimer &delay) : adc( ADC2 ), delay(delay)
+ADCController::ADCController(DelayTimer &delay, std::span<uint8_t> out_buffer) : out_buffer(out_buffer), adc( ADC2 ), delay(delay)
 {
     // enable ADC clock
     SET_BIT(RCC->AHB2ENR, RCC_AHB2ENR_ADC12EN);
 
     // exit deep power-down mode and enable voltage regulator
-    MODIFY_REG(
-        adc->CR,
-        ADC_CR_DEEPPWD | ADC_CR_ADVREGEN,
-        ADC_CR_ADVREGEN
-    );
+    MODIFY_REG(adc->CR, ADC_CR_DEEPPWD | ADC_CR_ADVREGEN, ADC_CR_ADVREGEN);
 
     // wait for startup time (11us)
     delay.us(11);
@@ -41,23 +37,11 @@ ADCController::ADCController(DelayTimer &delay) : adc( ADC2 ), delay(delay)
     uint32_t sqr1_conversion_4 = 3U << ADC_SQR1_SQ4_Pos;
     uint32_t sqr2_conversion_5 = 3U << ADC_SQR2_SQ5_Pos;
     uint32_t sqr2_conversion_6 = 3U << ADC_SQR2_SQ6_Pos;
-    uint32_t sqr1_conversions = 
-        sqr1_conversion_1
-            | sqr1_conversion_2
-            | sqr1_conversion_3
-            | sqr1_conversion_4;
+    uint32_t sqr1_conversions = sqr1_conversion_1 | sqr1_conversion_2 | sqr1_conversion_3 | sqr1_conversion_4;
     uint32_t sqr2_conversions = sqr2_conversion_5 | sqr2_conversion_6;
 
-    MODIFY_REG(
-        adc->SQR1,
-        0xffffffff,
-        sqr1_num_conversions | sqr1_conversions
-    );
-    MODIFY_REG(
-        adc->SQR2,
-        0xffffffff,
-        sqr2_conversions
-    );
+    MODIFY_REG(adc->SQR1, 0xffffffff, sqr1_num_conversions | sqr1_conversions);
+    MODIFY_REG(adc->SQR2, 0xffffffff, sqr2_conversions);
 
     uint32_t adc_cfgr_reset = 0x80000000U;
     uint32_t adc_cfgr_resolution = 0; // TODO: data resolution & timing
@@ -66,6 +50,7 @@ ADCController::ADCController(DelayTimer &delay) : adc( ADC2 ), delay(delay)
         adc_cfgr_reset,
         ADC_CFGR_DMAEN
             | ADC_CFGR_DMACFG // DMA circular mode
+            | ADC_CFGR_RES_1 // 8-bit resolution
             | adc_cfgr_resolution
             | ADC_CFGR_CONT // continuous conversion mode
             | ADC_CFGR_JQDIS // injected queue disabled
