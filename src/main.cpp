@@ -34,8 +34,8 @@ const auto pin_trigger_1_pin  = 11;
 // const auto pin_ain1_pin  = 5;
 
 // ADC2_IN3
-const auto pin_ain_port = gpio::Port::A;
-const auto pin_ain_pin  = 7;
+// const auto pin_ain_port = gpio::Port::A;
+// const auto pin_ain_pin  = 7;
 
 // ADC2_IN12
 // const auto pin_ain_3_port = gpio::Port::B;
@@ -113,12 +113,13 @@ int main( void )
     for (uint8_t &sample : buffer_span) sample = 0;
 
     DrumMachine drum_machine(pin_trigger_1);
-    const int adc_buffer_len = buffer_len / 2;
+    const int adc_buffer_len = 128;
     volatile uint8_t adc_buffer[adc_buffer_len];
     std::span<volatile uint8_t> adc_buffer_span(adc_buffer, adc_buffer_len);
     for (volatile uint8_t &sample : adc_buffer_span) sample = 0;
 
-    ADCController adc(timer_delay, adc_buffer_span);
+    ADCController adc(timer_delay, adc_buffer_span, indicator);
+    g_interrupt_handlers->dma1_channel2_handler = &adc;
 
     AudioController audio({ 
         .indicator = indicator,
@@ -137,7 +138,12 @@ int main( void )
     adc.start();
     audio.start();
 
-    while(true);
+    while(true) {
+        if (adc.is_tap_detected()) {
+            drum_machine.play(2);
+            adc.clear_tap_detected();
+        }
+    }
 
     return 0;
 }

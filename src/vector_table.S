@@ -192,7 +192,7 @@ vtable:
     .thumb_set DMA1_Channel1_IRQHandler,isr_dma1_channel1
 
     .weak    DMA1_Channel2_IRQHandler
-    .thumb_set DMA1_Channel2_IRQHandler,default_interrupt_handler
+    .thumb_set DMA1_Channel2_IRQHandler,isr_dma1_channel2
 
     .weak    DMA1_Channel3_IRQHandler
     .thumb_set DMA1_Channel3_IRQHandler,default_interrupt_handler

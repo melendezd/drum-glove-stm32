@@ -1,13 +1,15 @@
 #include "adc.hpp"
 #include "stm32g431xx.h"
 
-ADCController::ADCController(DelayTimer &delay, std::span<volatile uint8_t> out_buffer) 
+ADCController::ADCController(DelayTimer &delay, std::span<volatile uint8_t> out_buffer, StatusIndicator &indicator) 
     : out_buffer(out_buffer)
+    , tap_detected(false)
     , adc( ADC1 )
     , dma( DMA1_Channel2 )
     , dma_isr( DMA1 )
     , dmamux( DMAMUX1_Channel1 )
     , delay(delay)
+    , indicator(indicator)
     , data_register( reinterpret_cast<volatile uint16_t *>(&adc->DR) )
 {
     configure_adc();
@@ -95,7 +97,13 @@ void ADCController::configure_dma()
             | DMA_CCR_MINC    // memory increment mode
             | DMA_CCR_PSIZE_0 // (0b00) 16 bit peripheral size
             | DMA_CCR_PL_1    // (0b10) high priority
+            | DMA_CCR_TCIE    // transfer complete interrupt
     );
+
+    // enable interrupt
+    NVIC_ClearPendingIRQ( DMA1_Channel2_IRQn );
+    NVIC_SetPriority( DMA1_Channel2_IRQn, 1u );
+    NVIC_EnableIRQ( DMA1_Channel2_IRQn );
 
     // DMA CNDTR - number of data to transfer
     MODIFY_REG( dma->CNDTR, 0xffffU, out_buffer.size() );
@@ -115,6 +123,11 @@ void ADCController::configure_dma()
     );
 }
 
+bool ADCController::is_status_full_transfer()
+{
+    return READ_BIT( dma_isr->ISR, DMA_ISR_TCIF2 );
+}
+
 void ADCController::start()
 {
     SET_BIT(adc->CR, ADC_CR_ADSTART);
@@ -123,4 +136,30 @@ void ADCController::start()
 void ADCController::enable_dma()
 {
     SET_BIT( dma->CCR, DMA_CCR_EN );
+}
+
+bool ADCController::is_tap_detected()
+{
+    return tap_detected;
+}
+
+void ADCController::clear_tap_detected()
+{
+    tap_detected = false;
+}
+
+void ADCController::isr_dma()
+{
+    if (!is_status_full_transfer()) return;
+
+    const uint8_t threshold = 128;
+
+    for (volatile uint8_t sample : out_buffer) {
+        if (sample >= threshold) {
+            tap_detected = true;
+            break;
+        }
+    }
+
+    SET_BIT(dma_isr->IFCR, DMA_IFCR_CTCIF2);
 }

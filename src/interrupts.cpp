@@ -19,4 +19,10 @@ extern "C"
         if (g_interrupt_handlers->dma1_channel1_handler)
             g_interrupt_handlers->dma1_channel1_handler->isr_dma();
     }
+
+    void isr_dma1_channel2(void)
+    {
+        if (g_interrupt_handlers->dma1_channel2_handler)
+            g_interrupt_handlers->dma1_channel2_handler->isr_dma();
+    }
 }

@@ -165,21 +165,9 @@ void AudioController::isr_dma()
 {
     // the first half transfer interrupt happens after the DMA reads the first half of the buffer,
     // so the stale buffer starts index at 0
-    /*
     if ( is_status_full_transfer() || is_status_half_transfer() )
     {
         drum_machine.fill_buffer(buffers[stale_buffer_index]);
-
-        // set up stale buffer index for next interrupt
-        stale_buffer_index ^= 1;
-    }
-    */
-    if ( is_status_full_transfer() || is_status_half_transfer() )
-    {
-        auto len = buffers[stale_buffer_index].size();
-        for (int i = 0; i < len; i++) {
-            buffers[stale_buffer_index][i] = adc_buffer[i];
-        }
 
         // set up stale buffer index for next interrupt
         stale_buffer_index ^= 1;
