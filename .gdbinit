@@ -2285,6 +2285,7 @@ set python print-stack full
 # Start ------------------------------------------------------------------------
 
 python Dashboard.start()
+target extended-remote :4242
 
 # File variables ---------------------------------------------------------------
 

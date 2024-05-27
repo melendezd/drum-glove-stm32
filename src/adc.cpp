@@ -1,10 +1,25 @@
 #include "adc.hpp"
+#include "stm32g431xx.h"
 
-// TODO: pass in trigger timer
-ADCController::ADCController(DelayTimer &delay, std::span<uint8_t> out_buffer) : out_buffer(out_buffer), adc( ADC2 ), delay(delay)
+ADCController::ADCController(DelayTimer &delay, std::span<volatile uint8_t> out_buffer) 
+    : out_buffer(out_buffer)
+    , adc( ADC1 )
+    , dma( DMA1_Channel2 )
+    , dma_isr( DMA1 )
+    , dmamux( DMAMUX1_Channel1 )
+    , delay(delay)
+    , data_register( reinterpret_cast<volatile uint16_t *>(&adc->DR) )
+{
+    configure_adc();
+    configure_dma();
+    enable_dma();
+}
+
+void ADCController::configure_adc()
 {
     // enable ADC clock
     SET_BIT(RCC->AHB2ENR, RCC_AHB2ENR_ADC12EN);
+    MODIFY_REG(RCC->CCIPR, 0x3U << RCC_CCIPR_ADC12SEL_Pos, 0x2U << RCC_CCIPR_ADC12SEL_Pos);
 
     // exit deep power-down mode and enable voltage regulator
     MODIFY_REG(adc->CR, ADC_CR_DEEPPWD | ADC_CR_ADVREGEN, ADC_CR_ADVREGEN);
@@ -26,35 +41,86 @@ ADCController::ADCController(DelayTimer &delay, std::span<uint8_t> out_buffer) :
     SET_BIT(adc->CR, ADC_CR_ADEN);
 
     // configure conversions sequence channels
-    uint32_t sqr1_num_conversions = (6U - 1) << ADC_SQR1_L_Pos; // 6 conversions in a sequence
-    uint32_t sqr1_conversion_1 = 3U << ADC_SQR1_SQ1_Pos;
-    uint32_t sqr1_conversion_2 = 3U << ADC_SQR1_SQ2_Pos;
+    //uint32_t sqr1_num_conversions = (6U - 1) << ADC_SQR1_L_Pos; // 6 conversions in a sequence
+    uint32_t sqr1_num_conversions = (2U - 1) << ADC_SQR1_L_Pos; // 6 conversions in a sequence
+    uint32_t sqr1_conversion_1 = 15U << ADC_SQR1_SQ1_Pos;
+    uint32_t sqr1_conversion_2 = 15U << ADC_SQR1_SQ2_Pos;
+   
     //uint32_t sqr1_conversion_3 = 12U << ADC_SQR1_SQ3_Pos;
     //uint32_t sqr1_conversion_4 = 12U << ADC_SQR1_SQ4_Pos;
     //uint32_t sqr2_conversion_5 = 13U << ADC_SQR2_SQ5_Pos;
     //uint32_t sqr2_conversion_6 = 13U << ADC_SQR2_SQ6_Pos;
-    uint32_t sqr1_conversion_3 = 3U << ADC_SQR1_SQ3_Pos;
-    uint32_t sqr1_conversion_4 = 3U << ADC_SQR1_SQ4_Pos;
-    uint32_t sqr2_conversion_5 = 3U << ADC_SQR2_SQ5_Pos;
-    uint32_t sqr2_conversion_6 = 3U << ADC_SQR2_SQ6_Pos;
-    uint32_t sqr1_conversions = sqr1_conversion_1 | sqr1_conversion_2 | sqr1_conversion_3 | sqr1_conversion_4;
-    uint32_t sqr2_conversions = sqr2_conversion_5 | sqr2_conversion_6;
+    //uint32_t sqr1_conversions = sqr1_conversion_1 | sqr1_conversion_2 | sqr1_conversion_3 | sqr1_conversion_4;
+    //uint32_t sqr2_conversions = sqr2_conversion_5 | sqr2_conversion_6;
+    
+    uint32_t sqr1_conversions = sqr1_conversion_1 | sqr1_conversion_2;
 
     MODIFY_REG(adc->SQR1, 0xffffffff, sqr1_num_conversions | sqr1_conversions);
-    MODIFY_REG(adc->SQR2, 0xffffffff, sqr2_conversions);
+    //MODIFY_REG(adc->SQR2, 0xffffffff, sqr2_conversions);
 
-    uint32_t adc_cfgr_reset = 0x80000000U;
-    uint32_t adc_cfgr_resolution = 0; // TODO: data resolution & timing
+    // configure sampling times for channels 3, 12, 13
+    // 0b101: 92.5 ADC clock cycles (5.78us > 4us minimum per datasheet)
+    /*
+    MODIFY_REG(adc->SMPR1, ADC_SMPR1_SMP3, (0b101U << ADC_SMPR1_SMP3_Pos));
+    MODIFY_REG(
+        adc->SMPR2,
+        ADC_SMPR2_SMP12 | ADC_SMPR2_SMP13,
+        (0b101U << ADC_SMPR2_SMP12_Pos) | (0b101U << ADC_SMPR2_SMP13_Pos)
+    );
+    */
+    MODIFY_REG(adc->SMPR2, ADC_SMPR2_SMP15, 0b111U << ADC_SMPR2_SMP15_Pos);
+
+    uint32_t adc_cfgr_reset = 0x8000'0000U; // reset value according to manual
     MODIFY_REG(
         adc->CFGR,
         adc_cfgr_reset,
         ADC_CFGR_DMAEN
             | ADC_CFGR_DMACFG // DMA circular mode
             | ADC_CFGR_RES_1 // 8-bit resolution
-            | adc_cfgr_resolution
-            | ADC_CFGR_CONT // continuous conversion mode
+            | ADC_CFGR_CONT // continuous conversion mode -- no trigger timer needed, just start by setting ADSTART=1
             | ADC_CFGR_JQDIS // injected queue disabled
     );
+}
 
-    // TODO: configure DMA
+void ADCController::configure_dma()
+{
+    // enable DMA and DMAMUX clocks
+    SET_BIT( RCC->AHB1ENR, RCC_AHB1ENR_DMA1EN | RCC_AHB1ENR_DMAMUX1EN );
+
+    // configure DMA control register
+    // MSIZE is left at its reset value, so memory size is 8 bits
+    MODIFY_REG(
+        dma->CCR, ( 1U << 15 ) - 1,
+        DMA_CCR_CIRC          // circular mode
+            | DMA_CCR_MINC    // memory increment mode
+            | DMA_CCR_PSIZE_0 // (0b00) 16 bit peripheral size
+            | DMA_CCR_PL_1    // (0b10) high priority
+    );
+
+    // DMA CNDTR - number of data to transfer
+    MODIFY_REG( dma->CNDTR, 0xffffU, out_buffer.size() );
+
+    // DMA CPAR - peripheral address
+    MODIFY_REG( dma->CPAR, 0xffffffffU, reinterpret_cast< uint32_t >( data_register ) );
+
+    // DMA CMAR - memory address
+    MODIFY_REG( dma->CMAR, 0xffffffffU, reinterpret_cast< uint32_t >( out_buffer.data() ) );
+
+    // configure DMAMUX
+    const uint32_t dmamux_ccr_mask = DMAMUX_CxCR_DMAREQ_ID | DMAMUX_CxCR_SOIE | DMAMUX_CxCR_EGE | DMAMUX_CxCR_SE |
+                                     DMAMUX_CxCR_SE | DMAMUX_CxCR_SPOL | DMAMUX_CxCR_NBREQ | DMAMUX_CxCR_SYNC_ID;
+    MODIFY_REG(
+        dmamux->CCR, dmamux_ccr_mask,
+        5U << DMAMUX_CxCR_DMAREQ_ID_Pos // ADC2
+    );
+}
+
+void ADCController::start()
+{
+    SET_BIT(adc->CR, ADC_CR_ADSTART);
+}
+
+void ADCController::enable_dma()
+{
+    SET_BIT( dma->CCR, DMA_CCR_EN );
 }

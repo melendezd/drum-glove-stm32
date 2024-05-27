@@ -3,6 +3,7 @@
 #include "timer.hpp"
 #include "util.hpp"
 #include "dac.hpp"
+#include "adc.hpp"
 
 #include "interrupts.hpp"
 #include "global_constants.hpp"
@@ -33,8 +34,8 @@ const auto pin_trigger_1_pin  = 11;
 // const auto pin_ain1_pin  = 5;
 
 // ADC2_IN3
-// const auto pin_ain_2_port = gpio::Port::A;
-// const auto pin_ain2_pin  = 6;
+const auto pin_ain_port = gpio::Port::A;
+const auto pin_ain_pin  = 7;
 
 // ADC2_IN12
 // const auto pin_ain_3_port = gpio::Port::B;
@@ -94,6 +95,18 @@ int main( void )
         .pull       = gpio::Pull::None
     });
 
+    /*
+    GPIO pin_ain({
+        .port       = pin_ain_port,
+        .pin        = pin_ain_pin,
+        .mode       = gpio::Mode::Analog,
+        .outputType = gpio::OutputType::OpenDrain,
+        .speed      = gpio::Speed::VeryHigh,
+        .pull       = gpio::Pull::None
+    });
+    */
+
+
     const int buffer_len = 512;
     uint8_t buffer[buffer_len];
     std::span<uint8_t> buffer_span(buffer, buffer_len);
@@ -103,6 +116,9 @@ int main( void )
     const int adc_buffer_len = buffer_len / 2;
     volatile uint8_t adc_buffer[adc_buffer_len];
     std::span<volatile uint8_t> adc_buffer_span(adc_buffer, adc_buffer_len);
+    for (volatile uint8_t &sample : adc_buffer_span) sample = 0;
+
+    ADCController adc(timer_delay, adc_buffer_span);
 
     AudioController audio({ 
         .indicator = indicator,
@@ -111,35 +127,17 @@ int main( void )
         .delay = timer_delay,
         .amp_active = pin_amp_active,
         .drum_machine = drum_machine,
-        .adc_buffer = adc_buffer
+        .adc_buffer = adc_buffer_span
     });
     g_interrupt_handlers->dac_dma_underrun_handler = &audio;
     g_interrupt_handlers->dma1_channel1_handler = &audio;
     
     while (!audio.is_ready()) indicator.status_once(status::dac_not_ready);
 
+    adc.start();
     audio.start();
 
-    uint8_t val = 0;
-    bool button_was_down = false;
-    bool button_is_down = false;
-    int sample_index = 0;
-    while(true) {
-        button_was_down = button_is_down;
-        button_is_down = pin_trigger_1.read();
-
-        if (button_is_down && !button_was_down) {
-            /*
-            drum_machine.play(sample_index);
-            sample_index = (sample_index + 1) % 3;
-            */
-            val += 1;
-            if (val >= 16) val = 0;
-            for (int i = 0; i < adc_buffer_span.size(); i++) {
-                adc_buffer_span[i] = i * val;
-            }
-        }
-    }
+    while(true);
 
     return 0;
 }
