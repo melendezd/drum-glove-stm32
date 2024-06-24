@@ -17,4 +17,6 @@ namespace constants
 {
     const uint32_t sample_rate = 32000; // 32 kHz
     const uint32_t clock_frequency = 16'000'000; // 16 MHz
+    const int sample_count = 3;
+    const int adc_window_length = 128;
 }

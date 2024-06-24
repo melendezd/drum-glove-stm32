@@ -1,9 +1,8 @@
 #include "adc.hpp"
 #include "stm32g431xx.h"
 
-ADCController::ADCController(DelayTimer &delay, std::span<volatile uint8_t> out_buffer, StatusIndicator &indicator) 
-    : out_buffer(out_buffer)
-    , tap_detected(false)
+ADCController::ADCController(DelayTimer &delay, StatusIndicator &indicator) 
+    : tap_detected(false)
     , adc( ADC1 )
     , dma( DMA1_Channel2 )
     , dma_isr( DMA1 )
@@ -44,33 +43,31 @@ void ADCController::configure_adc()
 
     // configure conversions sequence channels
     //uint32_t sqr1_num_conversions = (6U - 1) << ADC_SQR1_L_Pos; // 6 conversions in a sequence
-    uint32_t sqr1_num_conversions = (2U - 1) << ADC_SQR1_L_Pos; // 6 conversions in a sequence
-    uint32_t sqr1_conversion_1 = 15U << ADC_SQR1_SQ1_Pos;
-    uint32_t sqr1_conversion_2 = 15U << ADC_SQR1_SQ2_Pos;
-   
-    //uint32_t sqr1_conversion_3 = 12U << ADC_SQR1_SQ3_Pos;
-    //uint32_t sqr1_conversion_4 = 12U << ADC_SQR1_SQ4_Pos;
-    //uint32_t sqr2_conversion_5 = 13U << ADC_SQR2_SQ5_Pos;
-    //uint32_t sqr2_conversion_6 = 13U << ADC_SQR2_SQ6_Pos;
-    //uint32_t sqr1_conversions = sqr1_conversion_1 | sqr1_conversion_2 | sqr1_conversion_3 | sqr1_conversion_4;
-    //uint32_t sqr2_conversions = sqr2_conversion_5 | sqr2_conversion_6;
-    
-    uint32_t sqr1_conversions = sqr1_conversion_1 | sqr1_conversion_2;
+    uint32_t sqr1_num_conversions = (6U - 1) << ADC_SQR1_L_Pos; // 6 conversions in a sequence
+    uint32_t sqr1_conversion_1 = 1U << ADC_SQR1_SQ1_Pos; // PA0
+    uint32_t sqr1_conversion_2 = 1U << ADC_SQR1_SQ2_Pos; // PA0
+    uint32_t sqr1_conversion_3 = 2U << ADC_SQR1_SQ3_Pos; // PA1
+    uint32_t sqr1_conversion_4 = 2U << ADC_SQR1_SQ4_Pos; // PA1
+    uint32_t sqr2_conversion_5 = 15U << ADC_SQR2_SQ5_Pos; // PB0
+    uint32_t sqr2_conversion_6 = 15U << ADC_SQR2_SQ6_Pos; // PB0
+    uint32_t sqr1_conversions = sqr1_conversion_1 | sqr1_conversion_2 | sqr1_conversion_3 | sqr1_conversion_4;
+    uint32_t sqr2_conversions = sqr2_conversion_5 | sqr2_conversion_6;
 
     MODIFY_REG(adc->SQR1, 0xffffffff, sqr1_num_conversions | sqr1_conversions);
-    //MODIFY_REG(adc->SQR2, 0xffffffff, sqr2_conversions);
+    MODIFY_REG(adc->SQR2, 0xffffffff, sqr2_conversions);
 
     // configure sampling times for channels 3, 12, 13
     // 0b101: 92.5 ADC clock cycles (5.78us > 4us minimum per datasheet)
-    /*
-    MODIFY_REG(adc->SMPR1, ADC_SMPR1_SMP3, (0b101U << ADC_SMPR1_SMP3_Pos));
+    MODIFY_REG(
+        adc->SMPR1,
+        ADC_SMPR1_SMP1 | ADC_SMPR1_SMP2,
+        (0b101U << ADC_SMPR1_SMP1_Pos) | (0b101U << ADC_SMPR1_SMP2_Pos)
+    );
     MODIFY_REG(
         adc->SMPR2,
-        ADC_SMPR2_SMP12 | ADC_SMPR2_SMP13,
-        (0b101U << ADC_SMPR2_SMP12_Pos) | (0b101U << ADC_SMPR2_SMP13_Pos)
+        ADC_SMPR2_SMP15,
+        0b101U << ADC_SMPR2_SMP15_Pos
     );
-    */
-    MODIFY_REG(adc->SMPR2, ADC_SMPR2_SMP15, 0b111U << ADC_SMPR2_SMP15_Pos);
 
     uint32_t adc_cfgr_reset = 0x8000'0000U; // reset value according to manual
     MODIFY_REG(
@@ -106,20 +103,20 @@ void ADCController::configure_dma()
     NVIC_EnableIRQ( DMA1_Channel2_IRQn );
 
     // DMA CNDTR - number of data to transfer
-    MODIFY_REG( dma->CNDTR, 0xffffU, out_buffer.size() );
+    MODIFY_REG( dma->CNDTR, 0xffffU, out_buffer_combined.size() );
 
     // DMA CPAR - peripheral address
     MODIFY_REG( dma->CPAR, 0xffffffffU, reinterpret_cast< uint32_t >( data_register ) );
 
     // DMA CMAR - memory address
-    MODIFY_REG( dma->CMAR, 0xffffffffU, reinterpret_cast< uint32_t >( out_buffer.data() ) );
+    MODIFY_REG( dma->CMAR, 0xffffffffU, reinterpret_cast< uint32_t >( out_buffer_combined.data() ) );
 
     // configure DMAMUX
     const uint32_t dmamux_ccr_mask = DMAMUX_CxCR_DMAREQ_ID | DMAMUX_CxCR_SOIE | DMAMUX_CxCR_EGE | DMAMUX_CxCR_SE |
                                      DMAMUX_CxCR_SE | DMAMUX_CxCR_SPOL | DMAMUX_CxCR_NBREQ | DMAMUX_CxCR_SYNC_ID;
     MODIFY_REG(
         dmamux->CCR, dmamux_ccr_mask,
-        5U << DMAMUX_CxCR_DMAREQ_ID_Pos // ADC2
+        5U << DMAMUX_CxCR_DMAREQ_ID_Pos // ADC1
     );
 }
 
@@ -138,26 +135,26 @@ void ADCController::enable_dma()
     SET_BIT( dma->CCR, DMA_CCR_EN );
 }
 
-bool ADCController::is_tap_detected()
-{
-    return tap_detected;
-}
-
-void ADCController::clear_tap_detected()
-{
-    tap_detected = false;
-}
-
 void ADCController::isr_dma()
 {
     if (!is_status_full_transfer()) return;
 
-    const uint8_t threshold = 128;
+    // transfer contents of raw out buffer to individual out buffers
+    for (int sample_id = 0; sample_id < constants::sample_count; sample_id++) {
+        for (int i = 0; i < constants::adc_window_length; i++) {
+            int combined_index = (2 * constants::sample_count * i) + (2 * sample_id + 1);
+            out_buffer[sample_id][i] = out_buffer_combined[combined_index];
+        }
+    }
 
-    for (volatile uint8_t sample : out_buffer) {
-        if (sample >= threshold) {
-            tap_detected = true;
-            break;
+    // process buffers to detect taps
+    const uint8_t threshold = 128;
+    for (int sample_id = 0; sample_id < constants::sample_count; sample_id++) {
+        for (uint8_t sample : out_buffer[sample_id]) {
+            if (sample >= threshold) {
+                tap_detected[sample_id] = true;
+                break;
+            }
         }
     }
 

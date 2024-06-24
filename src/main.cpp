@@ -34,8 +34,8 @@ const auto pin_trigger_1_pin  = 11;
 // const auto pin_ain1_pin  = 5;
 
 // ADC2_IN3
-// const auto pin_ain_port = gpio::Port::A;
-// const auto pin_ain_pin  = 7;
+// const auto pin_ain_port = gpio::Port::F;
+// const auto pin_ain_pin  = 0;
 
 // ADC2_IN12
 // const auto pin_ain_3_port = gpio::Port::B;
@@ -95,16 +95,14 @@ int main( void )
         .pull       = gpio::Pull::None
     });
 
-    /*
-    GPIO pin_ain({
-        .port       = pin_ain_port,
-        .pin        = pin_ain_pin,
-        .mode       = gpio::Mode::Analog,
-        .outputType = gpio::OutputType::OpenDrain,
-        .speed      = gpio::Speed::VeryHigh,
-        .pull       = gpio::Pull::None
-    });
-    */
+    // GPIO pin_ain({
+    //     .port       = pin_ain_port,
+    //     .pin        = pin_ain_pin,
+    //     .mode       = gpio::Mode::Analog,
+    //     .outputType = gpio::OutputType::OpenDrain,
+    //     .speed      = gpio::Speed::VeryHigh,
+    //     .pull       = gpio::Pull::None
+    // });
 
 
     const int buffer_len = 512;
@@ -113,12 +111,8 @@ int main( void )
     for (uint8_t &sample : buffer_span) sample = 0;
 
     DrumMachine drum_machine(pin_trigger_1);
-    const int adc_buffer_len = 128;
-    volatile uint8_t adc_buffer[adc_buffer_len];
-    std::span<volatile uint8_t> adc_buffer_span(adc_buffer, adc_buffer_len);
-    for (volatile uint8_t &sample : adc_buffer_span) sample = 0;
 
-    ADCController adc(timer_delay, adc_buffer_span, indicator);
+    ADCController adc(timer_delay, indicator);
     g_interrupt_handlers->dma1_channel2_handler = &adc;
 
     AudioController audio({ 
@@ -128,7 +122,6 @@ int main( void )
         .delay = timer_delay,
         .amp_active = pin_amp_active,
         .drum_machine = drum_machine,
-        .adc_buffer = adc_buffer_span
     });
     g_interrupt_handlers->dac_dma_underrun_handler = &audio;
     g_interrupt_handlers->dma1_channel1_handler = &audio;
@@ -139,9 +132,12 @@ int main( void )
     audio.start();
 
     while(true) {
-        if (adc.is_tap_detected()) {
-            drum_machine.play(2);
-            adc.clear_tap_detected();
+        for (int i = 0; i < constants::sample_count; i++) {
+            if (i == 2) continue;
+            if (adc.tap_detected[i]) {
+                drum_machine.play(i);
+                adc.tap_detected[i] = false;
+            }
         }
     }
 
