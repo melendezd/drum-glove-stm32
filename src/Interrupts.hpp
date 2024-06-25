@@ -1,13 +1,13 @@
 #pragma once
 
-#include "io.hpp"
-#include "dac.hpp"
-#include "adc.hpp"
+#include "Gpio.hpp"
+#include "AudioController.hpp"
+#include "ADCController.hpp"
 
 struct DefaultInterruptHandler
 {
-    DefaultInterruptHandler(GPIO &pin);
-    GPIO &pin;
+    DefaultInterruptHandler(Gpio &pin);
+    Gpio &pin;
     void isr();
 };
 

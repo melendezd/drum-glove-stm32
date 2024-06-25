@@ -1,26 +1,16 @@
-#include "io.hpp"
-#include "status_indicator.hpp"
-#include "timer.hpp"
+#include "Gpio.hpp"
+#include "StatusIndicator.hpp"
+#include "Timer.hpp"
 #include "util.hpp"
-#include "dac.hpp"
-#include "adc.hpp"
+#include "AudioController.hpp"
+#include "ADCController.hpp"
 
-#include "interrupts.hpp"
-#include "global_constants.hpp"
-#include "drum_machine.hpp"
+#include "Interrupts.hpp"
+#include "GlobalConstants.hpp"
+#include "DrumMachine.hpp"
 #include <span>
 
 #include "samples.hpp"
-
-// ---- GPIO ----
-const auto pin_led_port = gpio::Port::B;
-const auto pin_led_pin  = 8;
-
-const auto pin_amp_active_port = gpio::Port::A;
-const auto pin_amp_active_pin  = 7;
-
-const auto pin_trigger_1_port = gpio::Port::A;
-const auto pin_trigger_1_pin  = 11;
 
 // the following are commented out because no gpio setup is needed
 // ("additional function" for DAC & ADC is set up through non-GPIO peripheral registers)
@@ -41,10 +31,6 @@ const auto pin_trigger_1_pin  = 11;
 // const auto pin_ain_3_port = gpio::Port::B;
 // const auto pin_ain3_pin  = 2;
 
-// ---- Timers ----
-const auto timer_delay_id = timer::Id::Tim6;
-const auto timer_trigger_id = timer::Id::Tim7;
-
 // ----------------
 
 InterruptHandlers *g_interrupt_handlers = nullptr;
@@ -56,9 +42,9 @@ int main( void )
 
     // this GPIO corresponds to the green user LED LD2 on the STM32G4 Nucleo board
     // here, this is used as an error indicator for if anything goes wrong
-    GPIO pin_led({
-        .port       = pin_led_port,
-        .pin        = pin_led_pin,
+    Gpio pin_led({
+        .port       = hardware_constants::pin_led_port,
+        .pin        = hardware_constants::pin_led_pin,
         .mode       = gpio::Mode::Output,
         .outputType = gpio::OutputType::PushPull,
         .speed      = gpio::Speed::Low,
@@ -68,17 +54,17 @@ int main( void )
     g_interrupt_handlers->default_handler = &default_handler;
     pin_led.unset();
 
-    DelayTimer timer_delay( timer_delay_id, pin_led );
+    DelayTimer timer_delay( hardware_constants::timer_delay_id, pin_led );
     TriggerTimer timer_dac_trigger({
-        .id = timer_trigger_id,
+        .id = hardware_constants::timer_trigger_id,
         .one_pulse_mode = false,
         .auto_reload_value = constants::clock_frequency / constants::sample_rate,
         .prescaler_value = 0,
         .error_indicator = pin_led
     });
-    GPIO pin_amp_active({
-        .port       = pin_amp_active_port,
-        .pin        = pin_amp_active_pin,
+    Gpio pin_amp_active({
+        .port       = hardware_constants::pin_amp_active_port,
+        .pin        = hardware_constants::pin_amp_active_pin,
         .mode       = gpio::Mode::Output,
         .outputType = gpio::OutputType::PushPull,
         .speed      = gpio::Speed::Low,
@@ -86,24 +72,14 @@ int main( void )
     });
     StatusIndicator indicator( pin_led, timer_delay );
 
-    GPIO pin_trigger_1({
-        .port       = pin_trigger_1_port,
-        .pin        = pin_trigger_1_pin,
+    Gpio pin_trigger_1({
+        .port       = hardware_constants::pin_trigger_1_port,
+        .pin        = hardware_constants::pin_trigger_1_pin,
         .mode       = gpio::Mode::Input,
         .outputType = gpio::OutputType::PushPull,
         .speed      = gpio::Speed::Low,
         .pull       = gpio::Pull::None
     });
-
-    // GPIO pin_ain({
-    //     .port       = pin_ain_port,
-    //     .pin        = pin_ain_pin,
-    //     .mode       = gpio::Mode::Analog,
-    //     .outputType = gpio::OutputType::OpenDrain,
-    //     .speed      = gpio::Speed::VeryHigh,
-    //     .pull       = gpio::Pull::None
-    // });
-
 
     const int buffer_len = 512;
     uint8_t buffer[buffer_len];
@@ -144,7 +120,7 @@ int main( void )
     return 0;
 }
 
-DefaultInterruptHandler::DefaultInterruptHandler( GPIO &pin ) : pin( pin ) { }
+DefaultInterruptHandler::DefaultInterruptHandler( Gpio &pin ) : pin( pin ) { }
 
 void DefaultInterruptHandler::isr()
 {

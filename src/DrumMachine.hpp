@@ -1,13 +1,13 @@
 #pragma once
 
 #include <span>
-#include "io.hpp"
+#include "Gpio.hpp"
 #include "samples.hpp"
 
 class DrumMachine
 {
   public:
-    DrumMachine(GPIO &trigger1);
+    DrumMachine(Gpio &trigger1);
     void fill_buffer(std::span<uint8_t> target);
     void play(int index);
 
@@ -27,7 +27,7 @@ class DrumMachine
         { .source = std::span(samples::woody, samples::woody_len) },
     }};
 
-    GPIO &trigger1;
-    // GPIO &trigger2;
-    // GPIO &trigger3;
+    Gpio &trigger1;
+    // Gpio &trigger2;
+    // Gpio &trigger3;
 };

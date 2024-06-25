@@ -50,10 +50,10 @@ struct Settings
 constexpr GPIO_TypeDef *const get_port(gpio::Port port);
 constexpr uint32_t get_clock_enable_mask(gpio::Port port);
 
-class GPIO
+class Gpio
 {
   public:
-    GPIO(gpio::Settings settings);
+    Gpio(gpio::Settings settings);
 
     void set();
     void unset();

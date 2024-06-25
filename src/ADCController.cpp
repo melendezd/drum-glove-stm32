@@ -1,4 +1,4 @@
-#include "adc.hpp"
+#include "ADCController.hpp"
 #include "stm32g431xx.h"
 
 ADCController::ADCController(DelayTimer &delay, StatusIndicator &indicator) 

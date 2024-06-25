@@ -1,6 +1,6 @@
 #pragma once
 
-#include "io.hpp"
+#include "Gpio.hpp"
 #include "mcu.hpp"
 #include <cstdint>
 
@@ -19,7 +19,7 @@ struct TriggerTimerSettings
     bool one_pulse_mode;
     uint16_t auto_reload_value;
     uint16_t prescaler_value;
-    GPIO &error_indicator;
+    Gpio &error_indicator;
 };
 
 } // namespace timer
@@ -29,7 +29,7 @@ struct TriggerTimerSettings
 class DelayTimer
 {
   public:
-      DelayTimer(timer::Id id, GPIO &error_indicator);
+      DelayTimer(timer::Id id, Gpio &error_indicator);
 
       // Spin for the specified number of microseconds
       void us( uint16_t us );
@@ -40,7 +40,7 @@ class DelayTimer
   private:
       TIM_TypeDef *tim;
 
-      GPIO &error_indicator;
+      Gpio &error_indicator;
 
       TIM_TypeDef *get_timer_base(timer::Id timer_id);
       void enable_clock(timer::Id timer_id);
@@ -61,7 +61,7 @@ class TriggerTimer
   private:
       TIM_TypeDef *tim;
 
-      GPIO &error_indicator;
+      Gpio &error_indicator;
 
       TIM_TypeDef *get_timer_base(timer::Id timer_id);
       void enable_clock(timer::Id timer_id);

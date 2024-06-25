@@ -1,9 +1,9 @@
 #pragma once
 
 #include "mcu.hpp"
-#include "timer.hpp"
-#include "status_indicator.hpp"
-#include "global_constants.hpp"
+#include "Timer.hpp"
+#include "StatusIndicator.hpp"
+#include "GlobalConstants.hpp"
 #include <array>
 
 class ADCController

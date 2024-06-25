@@ -1,14 +1,14 @@
-#include "dac.hpp"
+#include "AudioController.hpp"
 
-#include "global_constants.hpp"
+#include "GlobalConstants.hpp"
 #include "mcu.hpp"
 #include "stm32g431xx.h"
 
 AudioController::AudioController( audio::Settings settings )
-    : dac( DAC )
-    , dma( DMA1_Channel1 )
-    , dma_isr( DMA1 )
-    , dmamux( DMAMUX1_Channel0 )
+    : dac( hardware_constants::dac_audio_controller )
+    , dma( hardware_constants::dma_channel_audio_controller )
+    , dma_isr( hardware_constants::dma_audio_controller )
+    , dmamux( hardware_constants::dmamux_audio_controller )
     , indicator( settings.indicator )
     , timer( settings.timer )
     , delay( settings.delay )
@@ -55,9 +55,9 @@ void AudioController::configure_dac()
     NVIC_SetPriority( TIM6_DAC_IRQn, 1u );
     NVIC_EnableIRQ( TIM6_DAC_IRQn );
 
-    NVIC_ClearPendingIRQ( DMA1_Channel1_IRQn );
-    NVIC_SetPriority( DMA1_Channel1_IRQn, 1u );
-    NVIC_EnableIRQ( DMA1_Channel1_IRQn );
+    NVIC_ClearPendingIRQ( hardware_constants::dma_irq_audio_controller );
+    NVIC_SetPriority( hardware_constants::dma_irq_audio_controller, 1u );
+    NVIC_EnableIRQ( hardware_constants::dma_irq_audio_controller );
 
     data_register = &dac->DHR8R1;
 }
@@ -75,8 +75,7 @@ void AudioController::configure_dma()
     // configure DMA control register
     // MSIZE is left at its reset value, so memory size is 8 bits
     MODIFY_REG(
-        dma->CCR, ( 1 << 15 ) - 1,
-        DMA_CCR_DIR                           // read from memory
+        dma->CCR, ( 1 << 15 ) - 1, DMA_CCR_DIR                           // read from memory
             | DMA_CCR_CIRC                    // circular mode
             | DMA_CCR_MINC                    // memory increment mode
             | DMA_CCR_PSIZE_1                 // (0b10) 32 bit peripheral size

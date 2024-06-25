@@ -1,4 +1,4 @@
-#include "io.hpp"
+#include "Gpio.hpp"
 #include "stm32g431xx.h"
 
 constexpr GPIO_TypeDef *const get_port( gpio::Port port )
@@ -47,7 +47,7 @@ constexpr uint32_t get_clock_enable_mask( gpio::Port port )
     return 0;
 }
 
-GPIO::GPIO( gpio::Settings settings )
+Gpio::Gpio( gpio::Settings settings )
 {
     using namespace gpio;
 
@@ -123,7 +123,7 @@ GPIO::GPIO( gpio::Settings settings )
     }
 }
 
-void GPIO::reset_registers()
+void Gpio::reset_registers()
 {
     port->MODER &= ~( GPIO_MODER_MODE0 << ( pin * 2 ) );
     port->OTYPER &= ~( GPIO_OTYPER_OT0 << pin );
@@ -131,22 +131,22 @@ void GPIO::reset_registers()
     port->PUPDR &= ~( GPIO_PUPDR_PUPD0 << ( pin * 2 ) );
 }
 
-void GPIO::set()
+void Gpio::set()
 {
     port->ODR |= 1UL << pin;
 }
 
-void GPIO::unset()
+void Gpio::unset()
 {
     port->ODR &= ~( 1UL << pin );
 }
 
-void GPIO::toggle()
+void Gpio::toggle()
 {
     port->ODR ^= 1UL << pin;
 }
 
-void GPIO::write( int val )
+void Gpio::write( int val )
 {
     if ( val )
         set();
@@ -154,7 +154,7 @@ void GPIO::write( int val )
         unset();
 }
 
-int GPIO::read()
+int Gpio::read()
 {
     return port->IDR & ( 1UL << pin );
 }

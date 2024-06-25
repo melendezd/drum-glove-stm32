@@ -1,8 +1,8 @@
 #pragma once
 
 #include "mcu.hpp"
-#include "status_indicator.hpp"
-#include "drum_machine.hpp"
+#include "StatusIndicator.hpp"
+#include "DrumMachine.hpp"
 #include <span>
 
 namespace audio
@@ -14,7 +14,7 @@ struct Settings
     std::span<uint8_t> buffer;
     TriggerTimer &timer;
     DelayTimer &delay;
-    GPIO &amp_active;
+    Gpio &amp_active;
     DrumMachine &drum_machine;
     std::span<volatile uint8_t> adc_buffer;
 };
@@ -60,7 +60,7 @@ class AudioController
     StatusIndicator &indicator;
     TriggerTimer &timer;
     DelayTimer &delay;
-    GPIO &amp_active;
+    Gpio &amp_active;
     DrumMachine &drum_machine;
 
     std::span<volatile uint8_t> adc_buffer;

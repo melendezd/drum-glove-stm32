@@ -1,8 +1,8 @@
-#include "drum_machine.hpp"
+#include "DrumMachine.hpp"
 #include <algorithm>
 #include <limits>
 
-DrumMachine::DrumMachine(GPIO &trigger1) : trigger1(trigger1) {}
+DrumMachine::DrumMachine(Gpio &trigger1) : trigger1(trigger1) {}
 
 void DrumMachine::fill_buffer(std::span<uint8_t> target)
 {

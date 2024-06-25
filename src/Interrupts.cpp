@@ -1,4 +1,4 @@
-#include "interrupts.hpp"
+#include "Interrupts.hpp"
 
 extern "C"
 {
