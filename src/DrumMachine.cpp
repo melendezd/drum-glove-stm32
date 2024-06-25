@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <limits>
 
-DrumMachine::DrumMachine(Gpio &trigger1) : trigger1(trigger1) {}
+DrumMachine::DrumMachine(GpioPin &trigger1) : trigger1(trigger1) {}
 
 void DrumMachine::fill_buffer(std::span<uint8_t> target)
 {

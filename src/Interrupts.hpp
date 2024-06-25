@@ -6,8 +6,8 @@
 
 struct DefaultInterruptHandler
 {
-    DefaultInterruptHandler(Gpio &pin);
-    Gpio &pin;
+    DefaultInterruptHandler(GpioPin &pin);
+    GpioPin &pin;
     void isr();
 };
 

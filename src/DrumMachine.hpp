@@ -7,7 +7,7 @@
 class DrumMachine
 {
   public:
-    DrumMachine(Gpio &trigger1);
+    DrumMachine(GpioPin &trigger1);
     void fill_buffer(std::span<uint8_t> target);
     void play(int index);
 
@@ -27,7 +27,7 @@ class DrumMachine
         { .source = std::span(samples::woody, samples::woody_len) },
     }};
 
-    Gpio &trigger1;
-    // Gpio &trigger2;
-    // Gpio &trigger3;
+    GpioPin &trigger1;
+    // GpioPin &trigger2;
+    // GpioPin &trigger3;
 };

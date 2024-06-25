@@ -7,12 +7,12 @@
 // Useful for indicating errors.
 //
 // Dependencies:
-// - Gpio out: Pin to which the status will be output. Recommended to use an LED.
+// - GpioPin out: Pin to which the status will be output. Recommended to use an LED.
 // - DelayTimer delay: Delay timer which will be used for timing in the output pattern.
 class StatusIndicator
 {
   public:
-    StatusIndicator( Gpio &out, DelayTimer &delay );
+    StatusIndicator( GpioPin &out, DelayTimer &delay );
 
     // This function will loop forever.
     //
@@ -25,6 +25,6 @@ class StatusIndicator
     void status_once( uint32_t status_code );
 
   private:
-    Gpio       &out;
+    GpioPin       &out;
     DelayTimer &delay;
 };

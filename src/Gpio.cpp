@@ -47,7 +47,7 @@ constexpr uint32_t get_clock_enable_mask( gpio::Port port )
     return 0;
 }
 
-Gpio::Gpio( gpio::Settings settings )
+GpioPin::GpioPin( gpio::Settings settings )
 {
     using namespace gpio;
 
@@ -123,7 +123,7 @@ Gpio::Gpio( gpio::Settings settings )
     }
 }
 
-void Gpio::reset_registers()
+void GpioPin::reset_registers()
 {
     port->MODER &= ~( GPIO_MODER_MODE0 << ( pin * 2 ) );
     port->OTYPER &= ~( GPIO_OTYPER_OT0 << pin );
@@ -131,22 +131,22 @@ void Gpio::reset_registers()
     port->PUPDR &= ~( GPIO_PUPDR_PUPD0 << ( pin * 2 ) );
 }
 
-void Gpio::set()
+void GpioPin::set()
 {
     port->ODR |= 1UL << pin;
 }
 
-void Gpio::unset()
+void GpioPin::unset()
 {
     port->ODR &= ~( 1UL << pin );
 }
 
-void Gpio::toggle()
+void GpioPin::toggle()
 {
     port->ODR ^= 1UL << pin;
 }
 
-void Gpio::write( int val )
+void GpioPin::write( int val )
 {
     if ( val )
         set();
@@ -154,7 +154,7 @@ void Gpio::write( int val )
         unset();
 }
 
-int Gpio::read()
+int GpioPin::read()
 {
     return port->IDR & ( 1UL << pin );
 }

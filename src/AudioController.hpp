@@ -14,7 +14,7 @@ struct Settings
     std::span<uint8_t> buffer;
     TriggerTimer &timer;
     DelayTimer &delay;
-    Gpio &amp_active;
+    GpioPin &amp_active;
     DrumMachine &drum_machine;
     std::span<volatile uint8_t> adc_buffer;
 };
@@ -60,7 +60,7 @@ class AudioController
     StatusIndicator &indicator;
     TriggerTimer &timer;
     DelayTimer &delay;
-    Gpio &amp_active;
+    GpioPin &amp_active;
     DrumMachine &drum_machine;
 
     std::span<volatile uint8_t> adc_buffer;

@@ -42,7 +42,7 @@ int main( void )
 
     // this GPIO corresponds to the green user LED LD2 on the STM32G4 Nucleo board
     // here, this is used as an error indicator for if anything goes wrong
-    Gpio pin_led({
+    GpioPin pin_led({
         .port       = hardware_constants::pin_led_port,
         .pin        = hardware_constants::pin_led_pin,
         .mode       = gpio::Mode::Output,
@@ -62,7 +62,7 @@ int main( void )
         .prescaler_value = 0,
         .error_indicator = pin_led
     });
-    Gpio pin_amp_active({
+    GpioPin pin_amp_active({
         .port       = hardware_constants::pin_amp_active_port,
         .pin        = hardware_constants::pin_amp_active_pin,
         .mode       = gpio::Mode::Output,
@@ -72,7 +72,7 @@ int main( void )
     });
     StatusIndicator indicator( pin_led, timer_delay );
 
-    Gpio pin_trigger_1({
+    GpioPin pin_trigger_1({
         .port       = hardware_constants::pin_trigger_1_port,
         .pin        = hardware_constants::pin_trigger_1_pin,
         .mode       = gpio::Mode::Input,
@@ -120,7 +120,7 @@ int main( void )
     return 0;
 }
 
-DefaultInterruptHandler::DefaultInterruptHandler( Gpio &pin ) : pin( pin ) { }
+DefaultInterruptHandler::DefaultInterruptHandler( GpioPin &pin ) : pin( pin ) { }
 
 void DefaultInterruptHandler::isr()
 {

@@ -1,7 +1,7 @@
 #include "Timer.hpp"
 #include "Util.hpp"
 
-DelayTimer::DelayTimer( timer::Id id, Gpio &error_indicator )
+DelayTimer::DelayTimer( timer::Id id, GpioPin &error_indicator )
     : tim( get_timer_base( id ) ), error_indicator( error_indicator )
 {
     enable_clock( id );

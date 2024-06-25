@@ -1,6 +1,6 @@
 #include "StatusIndicator.hpp"
 
-StatusIndicator::StatusIndicator( Gpio &out, DelayTimer &delay ) : out( out ), delay( delay ) { }
+StatusIndicator::StatusIndicator( GpioPin &out, DelayTimer &delay ) : out( out ), delay( delay ) { }
 
 void StatusIndicator::status_forever(uint32_t status_code)
 {
