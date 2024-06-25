@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Gpio.hpp"
-#include "mcu.hpp"
+#include "McuIncludes.hpp"
 #include <cstdint>
 
 namespace timer

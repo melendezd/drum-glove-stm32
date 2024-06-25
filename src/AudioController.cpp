@@ -1,7 +1,7 @@
 #include "AudioController.hpp"
 
 #include "GlobalConstants.hpp"
-#include "mcu.hpp"
+#include "McuIncludes.hpp"
 #include "stm32g431xx.h"
 
 AudioController::AudioController( audio::Settings settings )

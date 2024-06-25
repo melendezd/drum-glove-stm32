@@ -1,7 +1,7 @@
 #include "Gpio.hpp"
 #include "StatusIndicator.hpp"
 #include "Timer.hpp"
-#include "util.hpp"
+#include "Util.hpp"
 #include "AudioController.hpp"
 #include "ADCController.hpp"
 
