@@ -1,7 +1,7 @@
 #include "ADCController.hpp"
 #include "stm32g431xx.h"
 
-ADCController::ADCController(DelayTimer &delay, StatusIndicator &indicator) 
+ADCController::ADCController(DelayTimer &delay, StatusIndicator &indicator, TapDetector &tap_detector) 
     : tap_detected(false)
     , adc( ADC1 )
     , dma( DMA1_Channel2 )
@@ -9,6 +9,7 @@ ADCController::ADCController(DelayTimer &delay, StatusIndicator &indicator)
     , dmamux( DMAMUX1_Channel1 )
     , delay(delay)
     , indicator(indicator)
+    , tap_detector(tap_detector)
     , data_register( reinterpret_cast<volatile uint16_t *>(&adc->DR) )
 {
     configure_adc();
@@ -56,7 +57,7 @@ void ADCController::configure_adc()
     MODIFY_REG(adc->SQR1, 0xffffffff, sqr1_num_conversions | sqr1_conversions);
     MODIFY_REG(adc->SQR2, 0xffffffff, sqr2_conversions);
 
-    // configure sampling times for channels 3, 12, 13
+    // configure sampling times for channels 1, 2, 15
     // 0b101: 92.5 ADC clock cycles (5.78us > 4us minimum per datasheet)
     MODIFY_REG(
         adc->SMPR1,
@@ -148,15 +149,7 @@ void ADCController::isr_dma()
     }
 
     // process buffers to detect taps
-    const uint8_t threshold = 128;
-    for (int sample_id = 0; sample_id < constants::sample_count; sample_id++) {
-        for (uint8_t sample : out_buffer[sample_id]) {
-            if (sample >= threshold) {
-                tap_detected[sample_id] = true;
-                break;
-            }
-        }
-    }
+    tap_detector.process_frame(out_buffer);
 
     SET_BIT(dma_isr->IFCR, DMA_IFCR_CTCIF2);
 }

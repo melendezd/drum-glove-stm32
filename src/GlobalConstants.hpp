@@ -18,10 +18,12 @@ const uint32_t dac_dma_underrun = 4;
 
 namespace constants
 {
-const uint32_t sample_rate       = 32000;      // 32 kHz
-const uint32_t clock_frequency   = 16'000'000; // 16 MHz
-const int      sample_count      = 3;
-const int      adc_window_length = 128;
+const uint32_t sample_rate                         = 32000;      // 32 kHz
+const uint32_t clock_frequency                     = 16'000'000; // 16 MHz
+const int      sample_count                        = 3;
+const int      adc_window_length                   = 128;
+const uint8_t  piezo_trigger_threshold             = 77; // out of 256
+const uint8_t  piezo_after_threshold_window_length = 100;
 } // namespace constants
 
 namespace hardware_constants
@@ -35,12 +37,12 @@ const auto pin_amp_active_pin  = 7;
 const auto pin_trigger_1_port = gpio::Port::A;
 const auto pin_trigger_1_pin  = 11;
 
-const auto timer_delay_id = timer::Id::Tim6;
+const auto timer_delay_id   = timer::Id::Tim6;
 const auto timer_trigger_id = timer::Id::Tim7;
 
-const auto dac_audio_controller = DAC;
+const auto dac_audio_controller         = DAC;
 const auto dma_channel_audio_controller = DMA1_Channel1;
-const auto dma_irq_audio_controller = DMA1_Channel1_IRQn;
-const auto dma_audio_controller = DMA1;
-const auto dmamux_audio_controller = DMAMUX1_Channel0;
-} // namespace hardware
+const auto dma_irq_audio_controller     = DMA1_Channel1_IRQn;
+const auto dma_audio_controller         = DMA1;
+const auto dmamux_audio_controller      = DMAMUX1_Channel0;
+} // namespace hardware_constants

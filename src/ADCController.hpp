@@ -3,13 +3,14 @@
 #include "McuIncludes.hpp"
 #include "Timer.hpp"
 #include "StatusIndicator.hpp"
+#include "TapDetector.hpp"
 #include "GlobalConstants.hpp"
 #include <array>
 
 class ADCController
 {
   public:
-    ADCController(DelayTimer &delay, StatusIndicator &indicator);
+    ADCController(DelayTimer &delay, StatusIndicator &indicator, TapDetector &tap_detector);
     std::array<std::array<volatile uint8_t, constants::adc_window_length>, constants::sample_count> out_buffer;
 
     void start();
@@ -29,6 +30,7 @@ class ADCController
 
     DelayTimer &delay;
     StatusIndicator &indicator;
+    TapDetector &tap_detector;
 
     volatile uint16_t *data_register;
 

@@ -4,8 +4,9 @@
 #include "Util.hpp"
 #include "AudioController.hpp"
 #include "ADCController.hpp"
+#include "TapDetector.hpp"
 
-#include "Interrupts.hpp"
+#include "InterruptHandlers.hpp"
 #include "GlobalConstants.hpp"
 #include "DrumMachine.hpp"
 #include <span>
@@ -87,8 +88,9 @@ int main( void )
     for (uint8_t &sample : buffer_span) sample = 0;
 
     DrumMachine drum_machine(pin_trigger_1);
+    TapDetector tap_detector;
 
-    ADCController adc(timer_delay, indicator);
+    ADCController adc(timer_delay, indicator, tap_detector);
     g_interrupt_handlers->dma1_channel2_handler = &adc;
 
     AudioController audio({ 
@@ -109,10 +111,9 @@ int main( void )
 
     while(true) {
         for (int i = 0; i < constants::sample_count; i++) {
-            if (i == 2) continue;
-            if (adc.tap_detected[i]) {
-                drum_machine.play(i);
-                adc.tap_detected[i] = false;
+            uint8_t tap_strength = tap_detector.check_and_clear_tap_strength(i);
+            if (tap_strength > 0) {
+                drum_machine.play(i, tap_strength);
             }
         }
     }

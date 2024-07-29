@@ -15,6 +15,7 @@ void DrumMachine::fill_buffer(std::span<uint8_t> target)
         for (Sample &sample : samples) {
             if (!sample.is_playing) continue;
             val += static_cast<int>(sample.source[sample.position]) - half_full;
+            val = val * sample.volume / 256;
             sample.position++;
 
             // stop playing when we reach the end of the sample
@@ -22,18 +23,19 @@ void DrumMachine::fill_buffer(std::span<uint8_t> target)
         }
 
         // mix samples equally
-        val /= static_cast<int>(samples.size());
+        //val /= static_cast<int>(samples.size());
         //val /= 3;
         // ensure that result is in uint8_t bounds
         out = std::clamp(val + half_full, 0, upper_limit);
     }
 }
 
-void DrumMachine::play(int sample_id)
+void DrumMachine::play(int sample_id, uint8_t volume)
 {
     if (!is_sample_id_in_bounds(sample_id)) return;
 
     samples[sample_id].position = 0;
+    samples[sample_id].volume = volume;
     samples[sample_id].is_playing = true;
 }
 
