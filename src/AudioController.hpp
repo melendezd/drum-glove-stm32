@@ -11,7 +11,7 @@ namespace audio
 struct Settings
 {
     StatusIndicator &indicator;
-    std::span<uint8_t> buffer;
+    std::span<uint8_t> audio_out_buffer;
     TriggerTimer &timer;
     DelayTimer &delay;
     GpioPin &amp_active;
@@ -66,6 +66,6 @@ class AudioController
     std::span<volatile uint8_t> adc_buffer;
 
     volatile int stale_buffer_index;
-    std::span<uint8_t> buffer;
-    std::span<uint8_t> buffers[2];
+    std::span<uint8_t> audio_out_buffer;
+    std::span<uint8_t> audio_out_buffers[2];
 };

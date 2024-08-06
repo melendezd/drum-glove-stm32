@@ -24,6 +24,8 @@ const int      sample_count                        = 3;
 const int      adc_window_length                   = 128;
 const uint8_t  piezo_trigger_threshold             = 77; // out of 256
 const uint8_t  piezo_after_threshold_window_length = 100;
+const int      audio_out_half_buffer_length        = 256;
+const int      audio_out_buffer_length             = audio_out_half_buffer_length * 2;
 } // namespace constants
 
 namespace hardware_constants

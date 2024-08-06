@@ -16,10 +16,13 @@ AudioController::AudioController( audio::Settings settings )
     , drum_machine( settings.drum_machine )
     , adc_buffer( settings.adc_buffer )
     , stale_buffer_index( 0 )
-    , buffer( settings.buffer )
-    , buffers{
-          { settings.buffer.data(), settings.buffer.size() / 2 },
-          { settings.buffer.subspan(settings.buffer.size()/2, settings.buffer.size() - settings.buffer.size()/2)}
+    , audio_out_buffer( settings.audio_out_buffer )
+    , audio_out_buffers{
+          { settings.audio_out_buffer.data(), settings.audio_out_buffer.size() / 2 },
+          { settings.audio_out_buffer.subspan(
+              settings.audio_out_buffer.size() / 2,
+              settings.audio_out_buffer.size() - settings.audio_out_buffer.size() / 2
+          ) }
       }
 {
     configure_dac();
@@ -75,7 +78,8 @@ void AudioController::configure_dma()
     // configure DMA control register
     // MSIZE is left at its reset value, so memory size is 8 bits
     MODIFY_REG(
-        dma->CCR, ( 1 << 15 ) - 1, DMA_CCR_DIR                           // read from memory
+        dma->CCR, ( 1 << 15 ) - 1,
+        DMA_CCR_DIR                           // read from memory
             | DMA_CCR_CIRC                    // circular mode
             | DMA_CCR_MINC                    // memory increment mode
             | DMA_CCR_PSIZE_1                 // (0b10) 32 bit peripheral size
@@ -85,13 +89,13 @@ void AudioController::configure_dma()
     );
 
     // DMA CNDTR - number of data to transfer
-    MODIFY_REG( dma->CNDTR, 0xffffU, static_cast<uint32_t>(buffer.size()) );
+    MODIFY_REG( dma->CNDTR, 0xffffU, static_cast< uint32_t >( audio_out_buffer.size() ) );
 
     // DMA CPAR - peripheral address
     MODIFY_REG( dma->CPAR, 0xffffffffU, reinterpret_cast< uint32_t >( data_register ) );
 
     // DMA CMAR - memory address
-    MODIFY_REG( dma->CMAR, 0xffffffffU, reinterpret_cast< uint32_t >( buffer.data() ) );
+    MODIFY_REG( dma->CMAR, 0xffffffffU, reinterpret_cast< uint32_t >( audio_out_buffer.data() ) );
 
     // configure DMAMUX
     const uint32_t dmamux_ccr_mask = DMAMUX_CxCR_DMAREQ_ID | DMAMUX_CxCR_SOIE | DMAMUX_CxCR_EGE | DMAMUX_CxCR_SE |
@@ -164,12 +168,11 @@ void AudioController::isr_dma()
 {
     // the first half transfer interrupt happens after the DMA reads the first half of the buffer,
     // so the stale buffer starts index at 0
-    if ( is_status_full_transfer() || is_status_half_transfer() )
-    {
-        drum_machine.fill_buffer(buffers[stale_buffer_index]);
+    if ( is_status_full_transfer() || is_status_half_transfer() ) {
+        drum_machine.fill_buffer( audio_out_buffers [ stale_buffer_index ] );
 
         // set up stale buffer index for next interrupt
         stale_buffer_index ^= 1;
     }
-    SET_BIT(dma_isr->IFCR, DMA_IFCR_CGIF1);
+    SET_BIT( dma_isr->IFCR, DMA_IFCR_CGIF1 );
 }

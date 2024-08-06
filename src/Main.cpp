@@ -82,10 +82,9 @@ int main( void )
         .pull       = gpio::Pull::None
     });
 
-    const int buffer_len = 512;
-    uint8_t buffer[buffer_len];
-    std::span<uint8_t> buffer_span(buffer, buffer_len);
-    for (uint8_t &sample : buffer_span) sample = 0;
+    uint8_t buffer[constants::audio_out_buffer_length];
+    std::span<uint8_t> audio_out_buffer_span(buffer, constants::audio_out_buffer_length);
+    for (uint8_t &sample : audio_out_buffer_span) sample = 0;
 
     DrumMachine drum_machine(pin_trigger_1);
     TapDetector tap_detector;
@@ -95,7 +94,7 @@ int main( void )
 
     AudioController audio({ 
         .indicator = indicator,
-        .buffer = buffer_span,
+        .audio_out_buffer = audio_out_buffer_span,
         .timer = timer_dac_trigger,
         .delay = timer_delay,
         .amp_active = pin_amp_active,
