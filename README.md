@@ -11,11 +11,4 @@ https://github.com/user-attachments/assets/da5e6d56-24d0-4150-bf62-680188c22579
 
 
 ## Hardware
-
-[todo: schematic image]
-
-[todo: prototype image]
-
-## Software
-
-[todo: architecture diagram/explanation]
+![2024-08-16-085333_1225x802_scrot](https://github.com/user-attachments/assets/b73321b8-eb8c-4eb1-873c-449938da0d17)
